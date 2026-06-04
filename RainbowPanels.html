@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.2.1)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.2.2)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -137,12 +137,17 @@ canvas {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.8);
-    font-size: 9px;
-    font-weight: bold;
-    line-height: 1;
     vertical-align: middle;
     margin: 0 2px 3px 2px;
+    overflow: hidden;
+}
+.mini-obstacle-next {
+    width: 22px;
+    height: 22px;
+}
+.mini-obstacle-next svg {
+    width: 20px;
+    height: 20px;
 }
 /* 説明文用のミニ闇玉画像（丸型） */
 .mini-dark-img {
@@ -632,7 +637,11 @@ background: #ffd6d6;
       </div>
     </div>
     <div id="level-status-bar"> <span id="status-level" class="status-level-val">LEVEL 1</span> <span class="status-next-label">Next
-      <div class="mini-obstacle-img">■</div>
+      <div class="mini-obstacle-img mini-obstacle-next">
+  <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
+    <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
+  </svg>
+</div>
       : MOVES <span id="status-moves" class="status-moves-val">10</span></span> </div>
   </div>
   <div id="right-ui">
@@ -665,7 +674,11 @@ background: #ffd6d6;
   </svg>
 </span>雷玉・七色の玉は、色パネルを消した時に隣接していると一緒に消えるよ<br>
   RAINBOW BURST! ボタンで
-  <div class="mini-obstacle-img">■</div>
+  <div class="mini-obstacle-img">
+  <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
+    <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
+  </svg>
+</div>
   お邪魔パネル や
   <div class="mini-dark-img"></div>
   闇玉、<span class="mini-allclear-img">
@@ -676,7 +689,11 @@ background: #ffd6d6;
   <div class="special-panel-box">
     <div class="mini-dark-img"></div>
     闇玉：カウントが0になると周囲を
-    <div class="mini-obstacle-img">■</div>
+    <div class="mini-obstacle-img">
+  <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
+    <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
+  </svg>
+</div>
     お邪魔パネルに変えてしまう<br>
     <div class="mini-rainbow-img"></div>
     虹玉：隣接したパネルを消すとBURSTカウンター（★）が増える<br>
@@ -990,7 +1007,17 @@ ctx.lineTo(  3*s,  -3*s);
                 roundRect(this.x + this.offsetX + 3, this.y + 3, CONFIG.CELL_SIZE - 6, CONFIG.CELL_SIZE - 6, 12); ctx.fill();
                 ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "bold 26px sans-serif";
                 ctx.textAlign = "center"; ctx.textBaseline = "middle"; 
-                ctx.fillText("■", this.x + this.offsetX + CONFIG.CELL_SIZE/2, this.y + CONFIG.CELL_SIZE/2);
+// お邪魔パネルの中の模様を雲に変更
+const cx = this.x + this.offsetX + CONFIG.CELL_SIZE / 2;
+const cy = this.y + CONFIG.CELL_SIZE / 2;
+const s = CONFIG.CELL_SIZE / 100;
+ctx.save();
+ctx.translate(cx - 42.5 * s, cy - 42.5 * s);
+ctx.scale(s, s);
+ctx.fillStyle = "#ffffff";
+const cloudPath = new Path2D("M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z");
+ctx.fill(cloudPath);
+ctx.restore();
             } else {
                 ctx.fillStyle = this.color;
                 ctx.font = `bold ${this.size}px sans-serif`; ctx.textAlign = "center";
@@ -1416,9 +1443,18 @@ ctx.lineTo(cx2 +  3*s, cy2 -  3*s);
                 } else {
                     ctx.fillStyle = (type === CONFIG.PANEL_TYPE.OBSTACLE) ? CONFIG.THEME_COLORS.OBSTACLE : CONFIG.COLORS[type];
                     roundRect(x + 3, y + 3, CONFIG.CELL_SIZE - 6, CONFIG.CELL_SIZE - 6, 12); ctx.fill();
-                    if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
-                        ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "bold 26px sans-serif";
-                        ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("■", x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2);
+// お邪魔パネルの中の模様を雲に変更
+if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
+    const cx = x + CONFIG.CELL_SIZE / 2;
+    const cy = y + CONFIG.CELL_SIZE / 2;
+    const s = CONFIG.CELL_SIZE / 100;
+    ctx.save();
+    ctx.translate(cx - 42.5 * s, cy - 42.5 * s);
+    ctx.scale(s, s);
+    ctx.fillStyle = "#ffffff";
+    const cloudPath = new Path2D("M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z");
+    ctx.fill(cloudPath);
+    ctx.restore();
                     } else {
                         const img = images[type];
                         if (img.complete && img.naturalWidth !== 0) {
@@ -2079,16 +2115,16 @@ ctx.lineTo(cx2 +  3*s, cy2 -  3*s);
         while (tries < 50) {
             r = Math.floor(Math.random() * CONFIG.BOARD_SIZE); c = Math.floor(Math.random() * CONFIG.BOARD_SIZE);
             if (board[r][c] < CONFIG.PANEL_TYPE.OBSTACLE && board[r][c] !== -1 && !(lastMovedCell && lastMovedCell.some(cell => cell.r === r && cell.c === c))) { 
-                particles.push(new Particle(c * CONFIG.CELL_SIZE, r * CONFIG.CELL_SIZE, CONFIG.THEME_COLORS.OBSTACLE, "shake"));
-				shakingCells.add(`${r},${c}`);
-				setTimeout(() => {
-				shakingCells.delete(`${r},${c}`);
-				if (!isGameOver) { 
-					board[r][c] = CONFIG.PANEL_TYPE.OBSTACLE; 
-					cleanUpDangerCountsData(); 
-					draw(); 
-				}
-			}, 500);
+board[r][c] = CONFIG.PANEL_TYPE.OBSTACLE;
+cleanUpDangerCountsData();
+particles.push(new Particle(c * CONFIG.CELL_SIZE, r * CONFIG.CELL_SIZE, CONFIG.THEME_COLORS.OBSTACLE, "shake"));
+shakingCells.add(`${r},${c}`);
+setTimeout(() => {
+    shakingCells.delete(`${r},${c}`);
+    if (!isGameOver) { 
+        draw(); 
+    }
+}, 500);
             break; 
             } tries++;
         }
