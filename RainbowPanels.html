@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.2.2)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.3.1)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -182,6 +182,16 @@ canvas {
     vertical-align: middle;
     margin: 0 2px 3px 2px;
     border: 1px solid #fff;
+}
+/* 説明文用のミニオールマイティ画像（角丸四角型） */
+.mini-almighty-img {
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #ff4757 0%, #ffe53b 40%, #2ed573 60%, #1e90ff 80%, #c175ff 100%);
+    border-radius: 4px;
+    display: inline-flex;
+    vertical-align: middle;
+    margin: 0 2px 3px 2px;
 }
 /* 特殊パネルの説明を囲むパステル調のボックス */
 .special-panel-box {
@@ -432,7 +442,6 @@ opacity: 0;
 #allclear-overlay.active {
     background: rgba(0, 0, 0, 0.6);
 }
-	
 /* ゲームオーバー暗幕：下部レベルバーまで綺麗に覆い、バランスよく縦並びにする */
 #overlay {
     position: absolute;
@@ -564,8 +573,8 @@ background: #ffd6d6;
       <input type="number" id="debug-score-input" value="0">
       <div class="debug-btns">
         <button onclick="applyDebugScore()">反映</button>
-        <button onclick="setDebugScore(9950)">10000点直前</button>
-        <button onclick="setDebugScore(10350)">10400点直前</button>
+        <button onclick="setDebugScore(9800)">10000点直前</button>
+        <button onclick="setDebugScore(14800)">15000点直前</button>
       </div>
     </div>
     <div class="debug-row"> <span>LEVEL:</span>
@@ -575,6 +584,8 @@ background: #ffd6d6;
         <button onclick="setDebugLevel(3)">LV 3</button>
         <button onclick="setDebugLevel(4)">LV 4</button>
         <button onclick="setDebugLevel(5)">LV 5</button>
+        <button onclick="setDebugLevel(6)">LV 6</button>
+        <button onclick="setDebugLevel(7)">LV 7</button>
       </div>
     </div>
     <div class="debug-row"> <span>OBSTACLE (■):</span>
@@ -623,7 +634,7 @@ background: #ffd6d6;
         </div>
       </div>
       <canvas id="stage"></canvas>
-		<div id="allclear-overlay"></div>
+      <div id="allclear-overlay"></div>
       <div id="overlay">
         <h2 style="font-size:26px; margin: 5px 0 2px 0; letter-spacing: 0.05em; color: #ff7675;">GAME OVER</h2>
         <div id="final-score" style="font-size:16px; font-weight: 900; margin-bottom: 10px; color: #fff;"></div>
@@ -638,10 +649,10 @@ background: #ffd6d6;
     </div>
     <div id="level-status-bar"> <span id="status-level" class="status-level-val">LEVEL 1</span> <span class="status-next-label">Next
       <div class="mini-obstacle-img mini-obstacle-next">
-  <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
-    <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
-  </svg>
-</div>
+        <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
+          <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
+        </svg>
+      </div>
       : MOVES <span id="status-moves" class="status-moves-val">10</span></span> </div>
   </div>
   <div id="right-ui">
@@ -668,58 +679,69 @@ background: #ffd6d6;
 <!-- ゲームの説明文 -->
 <div class="description">3手以内に同じ色のパネルを縦横3つ繋げて消してハイスコアを目指そう！<br>
   連鎖すると虹色ゲージが貯まってBURSTカウンター（★）が増えるよ<br>
-  <div class="mini-rainbow-img"></div>虹玉・<span class="mini-allclear-img">
+  <span class="mini-dark-img"></span>闇玉・ <span class="mini-rainbow-img"></span>虹玉・<span class="mini-allclear-img">
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
-</span>雷玉・七色の玉は、色パネルを消した時に隣接していると一緒に消えるよ<br>
-  RAINBOW BURST! ボタンで
-  <div class="mini-obstacle-img">
+  </span>雷玉・七色の玉…色パネルを消した時に隣接していると一緒に消えるよ<br>
+  RAINBOW BURST! ボタン… <span class="mini-obstacle-img">
   <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
     <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
   </svg>
-</div>
-  お邪魔パネル や
-  <div class="mini-dark-img"></div>
-  闇玉、<span class="mini-allclear-img">
+  </span> お邪魔パネル や <span class="mini-dark-img"></span> 闇玉、<span class="mini-allclear-img">
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
-</span>雷玉を選んで消せる！<br>
+  </span>雷玉を選んで消せる！<br>
   <div class="special-panel-box">
-    <div class="mini-dark-img"></div>
-    闇玉：カウントが0になると周囲を
-    <div class="mini-obstacle-img">
-  <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
-    <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
-  </svg>
-</div>
-    お邪魔パネルに変えてしまう<br>
-    <div class="mini-rainbow-img"></div>
-    虹玉：隣接したパネルを消すとBURSTカウンター（★）が増える<br>
-    <span class="mini-allclear-img">
-  <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
-    <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
-  </svg>
-</span>雷玉：お邪魔パネルと闇玉を一気に消せる！<br>
-    七色の玉：パネルをたくさん消すと同色の玉が出現。七色集めると…!?</div>
+    <table style="border-collapse: collapse; line-height: 1.2;">
+      <!-- 説明文白枠内の行間*/ -->
+      <tr>
+        <td style="padding: 2px 6px 2px 0; vertical-align: middle;"><span class="mini-dark-img"></span></td>
+        <td style="padding: 2px 0;">闇玉：カウントが0になると周囲を <span class="mini-obstacle-img">
+          <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
+            <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
+          </svg>
+          </span> お邪魔パネルに変えてしまう </td>
+      </tr>
+      <tr>
+        <td style="padding: 2px 6px 2px 0; vertical-align: middle;"><span class="mini-rainbow-img"></span></td>
+        <td style="padding: 2px 0;">虹玉：隣接したパネルを消すとBURSTカウンター（★）が増える</td>
+      </tr>
+      <tr>
+        <td style="padding: 2px 6px 2px 0; vertical-align: middle;"><span class="mini-allclear-img">
+          <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
+            <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
+          </svg>
+          </span></td>
+        <td style="padding: 2px 0;">雷玉：お邪魔パネルと闇玉を一気に消せる！</td>
+      </tr>
+      <tr>
+        <td style="padding: 2px 6px 2px 0; vertical-align: middle;"><span class="mini-almighty-img"></span></td>
+        <td style="padding: 2px 0;">プリズム：どの色のパネルとも揃えられる！</td>
+      </tr>
+      <tr>
+        <td style="padding: 2px 6px 2px 0; vertical-align: middle;"></td>
+        <td style="padding: 2px 0;">七色の玉：パネルをたくさん消すと同色の玉が出現。七色集めると…!?</td>
+      </tr>
+    </table>
+  </div>
 </div>
 <button id="reset-btn" onclick="openResetModal()">ゲームをリセットする</button>
 <div id="reset-confirm-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s ease;">
   <div style="background: white; padding: 30px 25px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); text-align: center; max-width: 400px; width: 85%; border: 4px solid #fff; transform: scale(0.9); transition: transform 0.2s ease;" id="reset-modal-content">
     <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 18px; font-weight: 900;">最初からやりなおす？</h3>
-    <p style="margin: 0 0 25px 0; color: #64748b; font-size: 14px; font-weight: bold; line-height: 1.5;">現在のスコアやパネルの配置などが<br>全てリセットされます</p>
+    <p style="margin: 0 0 25px 0; color: #64748b; font-size: 14px; font-weight: bold; line-height: 1.5;">現在のスコアやパネルの配置などが<br>
+      全てリセットされます</p>
     <div style="display: flex; gap: 12px; justify-content: center;">
-      <button onclick="closeResetModal()" style="flex: 1; padding: 12px; border: none; border-radius: 15px; background: #cbd5e1; color: #475569; font-weight: 900; font-size: 14px; cursor: pointer;">やっぱり<br>今のゲームを続ける</button>
-      <button onclick="confirmResetGame()" style="flex: 1; padding: 12px; border: none; border-radius: 15px; background: #ff7675; color: white; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(255,118,117,0.3);">今のゲームを<br>リセットしてやりなおす！</button>
+      <button onclick="closeResetModal()" style="flex: 1; padding: 12px; border: none; border-radius: 15px; background: #cbd5e1; color: #475569; font-weight: 900; font-size: 14px; cursor: pointer;">やっぱり<br>
+      今のゲームを続ける</button>
+      <button onclick="confirmResetGame()" style="flex: 1; padding: 12px; border: none; border-radius: 15px; background: #ff7675; color: white; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(255,118,117,0.3);">今のゲームを<br>
+      リセットしてやりなおす！</button>
     </div>
   </div>
 </div>
-
-<p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 16px;">
-    © 2026 Rainbow Panels by isomi_ssm
-</p>
-
+<p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 16px;"> © 2026 Rainbow Panels by isomi_ssm </p>
 <script>
 	/************************************************************
 	 * 📝 命名メモ
@@ -738,15 +760,29 @@ background: #ffd6d6;
 
         // ── プレイルール・ゲームパラメータ ──
         INITIAL_MOVES: 3,            // ゲーム開始時やマッチ時の初期手数
+	// ── レベル上昇の設定 ──
+
         GAUGE_MAX: 5,                // レインボーゲージの最大値
         DARK_PANEL_INIT_COUNT: 9,    // 闇玉出現時の初期カウントダウン数値
-		
-		// ▼ここから追加（7色の玉システム用パラメータ）
+	DARK_PANEL_FAST_COUNT: 5,    // 闇玉（高速）出現時の初期カウントダウン数値
+
+	// ── レベル上昇の設定 ──
+	// 各レベルの設定：{ threshold: お邪魔パネルドロップ数（通算）, pace: お邪魔パネル出現間隔（手数）}
+	LEVELS: [
+	    { threshold: 0,  pace: 12 }, // レベル1
+	    { threshold: 3,  pace: 10  }, // レベル2
+	    { threshold: 6,  pace: 9  }, // レベル3
+	    { threshold: 9,  pace: 8  }, // レベル4
+	    { threshold: 12, pace: 7  }, // レベル5
+	    { threshold: 15, pace: 6  }, // レベル6
+	    { threshold: 18, pace: 5  }, // レベル7
+	],
+
+	// ▼七色の玉システム用パラメータ
         RAINBOW_BALL_THRESHOLD: 50,  // 各玉の出現に必要な消去数
-		RAINBOW_BALL_THRESHOLD_ORANGE: 30, // オレンジ玉の初回出現閾値
-		RAINBOW_BALL_THRESHOLD_INDIGO: 20, // 藍玉の初回出現閾値
+	RAINBOW_BALL_THRESHOLD_ORANGE: 30, // オレンジ玉の初回出現閾値
+	RAINBOW_BALL_THRESHOLD_INDIGO: 20, // 藍玉の初回出現閾値
         LEVEL_RAINBOW_DURATION: 20,  // SEVEN COLORSの継続手数
-        // ▲ここまで追加
 
         // ── システム内部用：特殊パネルの識別ID ──
         PANEL_TYPE: {
@@ -754,7 +790,8 @@ background: #ffd6d6;
             RAINBOW: 100,            // 虹玉
             DARK: 101,               // 闇玉
             BALL_0: 102, BALL_1: 103, BALL_2: 104, BALL_3: 105, BALL_4: 106, BALL_5: 107, BALL_6: 108,
-			ALLCLEAR: 109
+			ALLCLEAR: 109,
+			ALMIGHTY: 110
         },
 
         // ── スコア計算・コンボボーナス設定 ──
@@ -763,12 +800,16 @@ background: #ffd6d6;
             COMBO_BONUS: { 1: 30, 2: 30, 3: 40, 4: 60, 5: 100 } // 連鎖（コンボ）数ごとの加算ボーナス（5以上は100）
         },
 
-        // ── 特殊パネルの出現スコア閾値（ノルマ） ──
+        // ── 特殊パネルの出現スコア閾値 ──
         THRESHOLD: {
-            LIGHT_START: 10000,      // 虹玉が最初に出現するスコア
-            LIGHT_INTERVAL: 800,     // 以降、虹玉が次々に出現するスコア間隔
-            DARK_START: 10400,       // 闇玉が最初に出現するスコア
-            DARK_INTERVAL: 1000      // 以降、闇玉が次々に出現するスコア間隔
+            LIGHT_START: 10000,			// 虹玉出現の初期スコア
+            LIGHT_INTERVAL: 1050,		// 以降、虹玉出現のスコア間隔
+            DARK_START: 11200,			// 闇玉出現の初期スコア
+            DARK_INTERVAL: 1200,		// 以降、闇玉出現のスコア間隔
+            ALMIGHTY_START: 15000,		// オールマイティ出現の初期スコア
+            ALMIGHTY_INTERVAL: 1500,		// 以降、オールマイティ出現のスコア間隔
+            DARK_FAST_START: 15400,		// 高速闇玉出現の初期スコア
+            DARK_FAST_INTERVAL: 3000	// 以降、高速闇玉出現のスコア間隔
         },
 
         // ── 通常パネル用の画像ファイルパス ──
@@ -832,7 +873,9 @@ background: #ffd6d6;
     let movesUntilNextObstacle = 10; 
     
     let lightPanelThreshold = CONFIG.THRESHOLD.LIGHT_START; 
-    let darkPanelThreshold = CONFIG.THRESHOLD.DARK_START; 
+    let darkPanelThreshold = CONFIG.THRESHOLD.DARK_START;
+	let almightyThreshold = CONFIG.THRESHOLD.ALMIGHTY_START;
+	let darkFastThreshold = CONFIG.THRESHOLD.DARK_FAST_START;
     let dangerCounts = {}; 
     
     let selectionPulse = 0;
@@ -1031,7 +1074,7 @@ ctx.restore();
         constructor(x, y, type) {
             this.x = x; this.y = y; this.type = type; 
             this.life = 1.0; 
-            this.decay = type === CONFIG.PANEL_TYPE.RAINBOW ? 0.012 : 0.011; 
+            this.decay = type === CONFIG.PANEL_TYPE.RAINBOW ? 0.012 : type === CONFIG.PANEL_TYPE.ALMIGHTY ? 0.02 : 0.011; /*プリズムパネルのエフェクトの速度 0.02*/
             this.rotation = 0;
             
             if (this.type === CONFIG.PANEL_TYPE.DARK) {
@@ -1054,15 +1097,36 @@ ctx.restore();
                 this.suckers.forEach(s => { s.ox *= s.speedFactor; s.oy *= s.speedFactor; });
             }
         }
-        draw() {
+		
+		/*プリズムパネルのエフェクト*/
+		draw() {
             ctx.save(); ctx.globalAlpha = this.life;
-            if (this.type === CONFIG.PANEL_TYPE.RAINBOW) {
-                let radius = (1 - this.life) * 35 + 10; 
-                ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
+            if (this.type === CONFIG.PANEL_TYPE.ALMIGHTY) {
+                let size = (1 - this.life) * 20 + CONFIG.CELL_SIZE; /* 枠の広がり幅（20の数値で調整） */
+                ctx.shadowColor = "rgba(255, 255, 255, 0.5)";
+                ctx.shadowBlur = 40 * this.life; /* ぼかしの強さ（40の数値で調整） */
+			if (this.life > 0.5) {
+                   /* 前半：フラッシュ（lifeが高い=出現直後だけ強く光る） */
+                    ctx.fillStyle = `rgba(255, 255, 255, ${(this.life - 0.5) * 2})`; /* 1.0まで上げて強くフラッシュ */
+                    ctx.beginPath();
+                    ctx.roundRect(this.x - CONFIG.CELL_SIZE/2, this.y - CONFIG.CELL_SIZE/2, CONFIG.CELL_SIZE, CONFIG.CELL_SIZE, 6);
+                    ctx.fill();				} else {
+                   /* 後半：枠が広がってフェードアウト */
+                    // 1枚目：通常速度
+                    let size1 = (1 - this.life) * 20 + CONFIG.CELL_SIZE;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${this.life * 2 * 0.9})`;
+                    ctx.lineWidth = 14 * this.life;
+                    ctx.beginPath();
+                    ctx.roundRect(this.x - size1/2, this.y - size1/2, size1, size1, 6);
+                    ctx.stroke();
+                }
+			/*虹玉と闇玉の出現エフェクト*/
+			} else if (this.type === CONFIG.PANEL_TYPE.RAINBOW) {
+				let radius = (1 - this.life) * 35 + 10;
+					ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+					ctx.beginPath();
+					ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+					ctx.fill();            } else {
                 this.suckers.forEach(s => {
                     ctx.fillStyle = s.color; ctx.beginPath();
                     ctx.arc(this.x + s.ox, this.y + s.oy, s.size * this.life, 0, Math.PI * 2);
@@ -1071,6 +1135,7 @@ ctx.restore();
             }
             ctx.restore();
         }
+		/*プリズムパネルのエフェクトここまで*/
     }
 
     class TextEffect {
@@ -1111,13 +1176,8 @@ ctx.restore();
         textEffects.push(new TextEffect(absX, absY, text, color, true));
     }
 
-    function setDebugLevel(lv) {
-        if (lv === 1) obstacleDropCount = 0;
-        else if (lv === 2) obstacleDropCount = 3;
-        else if (lv === 3) obstacleDropCount = 6;
-        else if (lv === 4) obstacleDropCount = 9;
-        else if (lv === 5) obstacleDropCount = 12; 
-        
+	function setDebugLevel(lv) {
+        obstacleDropCount = CONFIG.LEVELS[lv - 1].threshold;
         movesUntilNextObstacle = getCurrentObstaclePace();
         updateLevelUI();
         draw();
@@ -1173,8 +1233,8 @@ ctx.restore();
 	}
 	
     function getCurrentTypeCount() {
-        if (score >= 8000) return 7; // 8000点で藍色合流
-        if (score >= 5000) return 6;
+        if (score >= 8000) return 7; // 藍色出現の初期スコア
+        if (score >= 5000) return 6; // 橙玉出現の初期スコア
         return 5;
     }
 
@@ -1280,7 +1340,9 @@ ctx.restore();
     function initGame() {
         score = 0; moves = CONFIG.INITIAL_MOVES; 
         lightPanelThreshold = CONFIG.THRESHOLD.LIGHT_START; 
-        darkPanelThreshold = CONFIG.THRESHOLD.DARK_START; 
+        darkPanelThreshold = CONFIG.THRESHOLD.DARK_START;
+		almightyThreshold = CONFIG.THRESHOLD.ALMIGHTY_START;
+		darkFastThreshold = CONFIG.THRESHOLD.DARK_FAST_START;
         isGameOver = false;
         skillStock = 0; skillGauge = 0; particles = []; specialEffects = []; textEffects = []; dangerCounts = {};
 		
@@ -1377,10 +1439,10 @@ ctx.restore();
                     ctx.beginPath(); ctx.arc(x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2, CONFIG.CELL_SIZE/2 - 4, 0, Math.PI*2); ctx.fill();
                     
                     ctx.shadowBlur = 0;
-                    ctx.fillStyle = "white"; ctx.font = "bold 24px sans-serif";
-                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
                     let count = dangerCounts[`${r},${c}`] !== undefined ? dangerCounts[`${r},${c}`] : CONFIG.DARK_PANEL_INIT_COUNT;
-                    ctx.fillText(count, x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2);
+					ctx.fillStyle = count <= 3 ? "#ff4757" : "white"; ctx.font = "bold 24px sans-serif";
+                    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+					ctx.fillText(count, x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2);
                     ctx.restore();
                 } else if (type >= 102 && type <= 108) {
                     // ▼ここから追加：7色の玉のグラデーション描画
@@ -1406,6 +1468,18 @@ ctx.restore();
                     ctx.restore();
                     // ▲ここまで追加
 					
+				} else if (type === CONFIG.PANEL_TYPE.ALMIGHTY) {
+					ctx.save();
+					let grad = ctx.createLinearGradient(x, y, x + CONFIG.CELL_SIZE, y + CONFIG.CELL_SIZE);
+					grad.addColorStop(0.0,  '#ff4757');
+					grad.addColorStop(0.4, '#ffe53b');
+					grad.addColorStop(0.6, '#2ed573');
+					grad.addColorStop(0.8, '#1e90ff');
+					grad.addColorStop(1.0,  '#c175ff');
+					ctx.fillStyle = grad;
+					roundRect(x + 3, y + 3, CONFIG.CELL_SIZE - 6, CONFIG.CELL_SIZE - 6, 12);
+					ctx.fill();
+					ctx.restore();
 				} else if (type === CONFIG.PANEL_TYPE.ALLCLEAR) {
 					ctx.save();
 					let glow = 10 + Math.sin(selectionPulse * 1.5) * 5;
@@ -1543,7 +1617,7 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
             else {
                 const dr = Math.abs(r - selected.r); const dc = Math.abs(c - selected.c);
                 if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
-                    if (board[r][c] >= CONFIG.PANEL_TYPE.OBSTACLE || board[selected.r][selected.c] >= CONFIG.PANEL_TYPE.OBSTACLE) selected = {r, c};
+				if ((board[r][c] >= CONFIG.PANEL_TYPE.OBSTACLE && board[r][c] !== CONFIG.PANEL_TYPE.ALMIGHTY) || (board[selected.r][selected.c] >= CONFIG.PANEL_TYPE.OBSTACLE && board[selected.r][selected.c] !== CONFIG.PANEL_TYPE.ALMIGHTY)) selected = {r, c};
                     else {
                         isAnimating = true;
                         const temp = board[r][c]; board[r][c] = board[selected.r][selected.c]; board[selected.r][selected.c] = temp;
@@ -1836,22 +1910,19 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
         document.getElementById('status-moves').innerText = Math.max(movesUntilNextObstacle, 0);
     }
 
-    function getCurrentObstacleLevel() {
-        if (obstacleDropCount < 3) return 1;
-        if (obstacleDropCount < 6) return 2;
-        if (obstacleDropCount < 9) return 3;
-        if (obstacleDropCount < 12) return 4;
-        return 5;
-    }
+	function getCurrentObstacleLevel() {
+		const levels = CONFIG.LEVELS;
+		let lv = 1;
+		for (let i = 1; i < levels.length; i++) {
+			if (obstacleDropCount >= levels[i].threshold) lv = i + 1;
+		}
+		return lv;
+	}
 
-    function getCurrentObstaclePace() {
-        let lv = getCurrentObstacleLevel();
-        if (lv === 1) return 10;
-        if (lv === 2) return 8;
-        if (lv === 3) return 7;
-        if (lv === 4) return 6;
-        return 5;
-    }
+	function getCurrentObstaclePace() {
+		let lv = getCurrentObstacleLevel();
+		return CONFIG.LEVELS[lv - 1].pace;
+	}
 
 	async function resetGaugeWithFade() {
 		const fill = document.getElementById('gauge-fill');
@@ -1880,18 +1951,27 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 		fill.style.transition = '';
 
 		await animateCurveChargeParticle();
-	}
+}
 	
-    function checkMatches() {
-        let matched = [];
-        for (let r = 0; r < CONFIG.BOARD_SIZE; r++) for (let c = 0; c < CONFIG.BOARD_SIZE - 2; c++) {
-            let t = board[r][c]; if (t !== -1 && t < CONFIG.PANEL_TYPE.OBSTACLE && t === board[r][c+1] && t === board[r][c+2]) matched.push({r, c}, {r, c:c+1}, {r, c:c+2});
-        }
-        for (let c = 0; c < CONFIG.BOARD_SIZE; c++) for (let r = 0; r < CONFIG.BOARD_SIZE - 2; r++) {
-            let t = board[r][c]; if (t !== -1 && t < CONFIG.PANEL_TYPE.OBSTACLE && t === board[r+1][c] && t === board[r+2][c]) matched.push({r, c}, {r:r+1, c}, {r:r+2, c});
-        }
-        return matched;
-    }
+	function checkMatches() {
+		const ALL = CONFIG.PANEL_TYPE.ALMIGHTY;
+		function getMatchColor(a, b, c) {
+			const vals = [a, b, c];
+			const base = vals.find(v => v !== ALL && v !== -1 && v < CONFIG.PANEL_TYPE.OBSTACLE);
+			if (base === undefined) return null;
+			return vals.every(v => v === base || v === ALL) ? base : null;
+		}
+		let matched = [];
+		for (let r = 0; r < CONFIG.BOARD_SIZE; r++) for (let c = 0; c < CONFIG.BOARD_SIZE - 2; c++) {
+			if (getMatchColor(board[r][c], board[r][c+1], board[r][c+2]) !== null)
+				matched.push({r, c}, {r, c:c+1}, {r, c:c+2});
+		}
+		for (let c = 0; c < CONFIG.BOARD_SIZE; c++) for (let r = 0; r < CONFIG.BOARD_SIZE - 2; r++) {
+			if (getMatchColor(board[r][c], board[r+1][c], board[r+2][c]) !== null)
+				matched.push({r, c}, {r:r+1, c}, {r:r+2, c});
+		}
+		return matched;
+	}
 
     function checkSpecialAdjacency(matches) {
         let specialsToClear = [];
@@ -2075,6 +2155,14 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
             addSingleSpecialPanel(CONFIG.PANEL_TYPE.DARK);
             darkPanelThreshold += CONFIG.THRESHOLD.DARK_INTERVAL; 
         }
+		if (score >= CONFIG.THRESHOLD.ALMIGHTY_START && score >= almightyThreshold) {
+			addSingleSpecialPanel(CONFIG.PANEL_TYPE.ALMIGHTY);
+			almightyThreshold += CONFIG.THRESHOLD.ALMIGHTY_INTERVAL;
+		}
+		if (score >= CONFIG.THRESHOLD.DARK_FAST_START && score >= darkFastThreshold) {
+			addSingleSpecialPanel(CONFIG.PANEL_TYPE.DARK, CONFIG.DARK_PANEL_FAST_COUNT);
+			darkFastThreshold += CONFIG.THRESHOLD.DARK_FAST_INTERVAL;
+		}
     }
 
     function refillBoard() {
@@ -2130,29 +2218,31 @@ setTimeout(() => {
         }
     }
 
-    function addSingleSpecialPanel(type) {
-        let r, c; let tries = 0;
-        while (tries < 100) {
-            r = Math.floor(Math.random() * CONFIG.BOARD_SIZE);
-            c = Math.floor(Math.random() * CONFIG.BOARD_SIZE);
+	function addSingleSpecialPanel(type, initCount = CONFIG.DARK_PANEL_INIT_COUNT) {
+		let r, c; let tries = 0;
+		while (tries < 100) {
+			r = Math.floor(Math.random() * CONFIG.BOARD_SIZE);
+			c = Math.floor(Math.random() * CONFIG.BOARD_SIZE);
 			if (board[r][c] < CONFIG.PANEL_TYPE.OBSTACLE && board[r][c] !== -1 && !(lastMovedCell && lastMovedCell.some(cell => cell.r === r && cell.c === c))) {
-                board[r][c] = type;
-                let targetX = c * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
-                let targetY = r * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
-                
-                if (type === CONFIG.PANEL_TYPE.RAINBOW) {
-                    specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.RAINBOW));
-                } else if (type === CONFIG.PANEL_TYPE.DARK) {
-                    dangerCounts[`${r},${c}`] = CONFIG.DARK_PANEL_INIT_COUNT; 
-                    specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.DARK));
+				board[r][c] = type;
+				let targetX = c * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
+				let targetY = r * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
+
+				if (type === CONFIG.PANEL_TYPE.RAINBOW) {
+					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.RAINBOW));
+				} else if (type === CONFIG.PANEL_TYPE.DARK) {
+					dangerCounts[`${r},${c}`] = initCount;
+					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.DARK));
+				} else if (type === CONFIG.PANEL_TYPE.ALMIGHTY) {
+					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.ALMIGHTY));
 				} else if (type === CONFIG.PANEL_TYPE.ALLCLEAR) {
-				    specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.RAINBOW));
-                }
-                break;
-            }
-            tries++;
-        }
-    }
+					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.RAINBOW));
+				}
+				break;
+			}
+			tries++;
+		}
+	}
 	
 	// ▼ここから追加（7色の玉システムの関数群）
     function spawnRainbowBall(colorIndex) {
