@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.3.3)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.3.4)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -27,7 +27,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: none;  /* デバッグパネル表示flex・非表示none */
+    display: flex;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -957,6 +957,12 @@ background: #ffd6d6;
     let selected = null;
     let score = 0;
     let moves = CONFIG.INITIAL_MOVES;
+	
+	let touchStartCell = null;
+	let touchStartX = 0;
+	let touchStartY = 0;
+	let touchStartCell = null;
+	
     let isAnimating = false;
     let isGameOver = false;
     
@@ -990,7 +996,7 @@ background: #ffd6d6;
 	let allClearSpawned = false;
 	let allClearSpawnCount = null;
     let levelRainbowCount = 0;
-
+	
     // Canvas上の指定位置に✦キラキラの小片を生成するクラス
     class SparkleParticle {
         constructor(x, y) {
@@ -1707,6 +1713,24 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
         ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
     }
 
+	canvas.addEventListener('touchstart', (e) => {
+		if (isAnimating || isGameOver) return;
+
+		const rect = canvas.getBoundingClientRect();
+
+		const c = Math.floor(
+			(e.touches[0].clientX - rect.left) /
+			(rect.width / CONFIG.BOARD_SIZE)
+		);
+
+		const r = Math.floor(
+			(e.touches[0].clientY - rect.top) /
+			(rect.height / CONFIG.BOARD_SIZE)
+		);
+
+		touchStartCell = { r, c };
+	});
+	
     canvas.addEventListener('click', async (e) => {
         if (isAnimating || isGameOver) return;
         const rect = canvas.getBoundingClientRect();
@@ -1769,7 +1793,63 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 		updateSkillUI();
         draw();
     });
+	
+	canvas.addEventListener('touchstart', (e) => {
 
+		const rect = canvas.getBoundingClientRect();
+
+		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
+
+		const x = touchStartX - rect.left;
+		const y = touchStartY - rect.top;
+
+		touchStartCell = {
+			r: Math.floor(y / (rect.height / CONFIG.BOARD_SIZE)),
+			c: Math.floor(x / (rect.width / CONFIG.BOARD_SIZE))
+		};
+	});
+
+	canvas.addEventListener('touchend', (e) => {
+
+		if (!touchStartCell) return;
+		if (isAnimating || isGameOver) return;
+
+		const touch = e.changedTouches[0];
+
+		const rect = canvas.getBoundingClientRect();
+
+		const endC = Math.floor(
+			(touch.clientX - rect.left) /
+			(rect.width / CONFIG.BOARD_SIZE)
+		);
+
+		const endR = Math.floor(
+			(touch.clientY - rect.top) /
+			(rect.height / CONFIG.BOARD_SIZE)
+		);
+
+		const dr = Math.abs(endR - touchStartCell.r);
+		const dc = Math.abs(endC - touchStartCell.c);
+
+		if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
+
+			selected = {
+				r: touchStartCell.r,
+				c: touchStartCell.c
+			};
+
+			canvas.dispatchEvent(
+				new MouseEvent('click', {
+					clientX: touch.clientX,
+					clientY: touch.clientY
+				})
+			);
+		}
+
+		touchStartCell = null;
+	});
+	
     function advanceDangerCounts() {
         let newCounts = {};
         for (let key in dangerCounts) {
