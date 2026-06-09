@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.3.3)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.3.5)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -27,7 +27,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: none;  /* デバッグパネル表示flex・非表示none */
+    display: flex;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -215,11 +215,27 @@ canvas {
     flex-direction: column;
     align-items: center;
     background: #ffffff;
-    padding: 25px 25px;
+    padding: 0;
     border-radius: 24px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.04);
     border: 4px solid #fff;
     min-width: 210px;
+    box-sizing: border-box;
+}
+#right-ui-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 25px 25px 15px 25px;
+    box-sizing: border-box;
+}
+#right-ui-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 15px 25px 25px 25px;
     box-sizing: border-box;
 }
 .ui-section-title {
@@ -554,90 +570,118 @@ background: #ffd6d6;
     text-shadow: none;
 }
 	
-/* ========================================================
-   スマホ向け（画面幅768px以下）のレイアウト微調整
-   PC側のデザインを崩さずに、スマホ時のみ上書きします
-   ======================================================== */
+/* メディアクリエ */
 @media (max-width: 768px) {
-    /* 全体の並びを縦にする */
+    body {
+        padding: 16px 12px;
+        overflow-x: hidden;
+    }
+
     #main-layout {
         flex-direction: column;
         align-items: center;
-        gap: 15px;
-    }
-
-    /* 右側UIパネルをスマホ用にコンパクトな2列のグリッド配置へ変更 */
-    #right-ui {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* 左右に2分割 */
-        gap: 8px 15px;
-        padding: 15px 20px;
-        min-width: unset;
+        gap: 10px;
         width: 100%;
-        max-width: 340px; /* ゲーム盤面の幅に合わせる */
+        box-sizing: border-box;
     }
 
-    /* BEST SCORE：最上部に横いっぱいに配置 */
+    /* right-uiを透明ラッパー化してtop/bottomを独立したflexアイテムに */
+    #right-ui {
+        display: contents;
+    }
+
+    /* 並び順：top → left-area → bottom */
+    #right-ui-top    { order: 1; }
+    #left-area       { order: 2; }
+    #right-ui-bottom { order: 3; }
+
+    /* SCORE/MOVESパネル */
+    #right-ui-top {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+        border: 4px solid #fff;
+        padding: 12px 20px;
+        width: 100%;
+        max-width: 385px;
+        box-sizing: border-box;
+        gap: 0;
+    }
     #best-score {
-        grid-column: 1 / -1;
-        text-align: center;
-        margin-bottom: 0;
-        font-size: 14px;
+        display: none; /* スマホでは非表示 */
     }
-
-    /* SCORE：左側に配置 */
-    #best-score + .ui-section-title {
-        grid-column: 1;
-        grid-row: 2;
+    #right-ui-top .ui-section-title {
+        text-align: center;
+        margin-bottom: 2px;
+    }
+    .score-val {
+        font-size: 32px;
         margin-bottom: 0;
         text-align: center;
     }
-    #score {
-        grid-column: 1;
-        grid-row: 3;
-        font-size: 32px; /* スマホ用に少し小さく */
+    .moves-val {
+        font-size: 32px;
         margin-bottom: 0;
         text-align: center;
     }
 
-    /* MOVES：右側に配置（SCOREと横並び化） */
-    .score-val + .ui-section-title {
-        grid-column: 2;
-        grid-row: 2;
-        margin-bottom: 0;
-        text-align: center;
+    /* ゲーム盤面エリア */
+    #left-area {
+        width: 100%;
+        max-width: 385px;
+        box-sizing: border-box;
+        gap: 10px;
     }
-    #moves {
-        grid-column: 2;
-        grid-row: 3;
-        font-size: 32px; /* スマホ用に少し小さく */
-        margin-bottom: 0;
-        text-align: center;
+    #game-container {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
     }
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+    .rb-slot {
+        width: 20px;
+        height: 20px;
+    }
+    #level-status-bar {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    .status-level-val  { font-size: 16px; }
+    .status-moves-val  { font-size: 16px; }
 
-    /* RAINBOW GAUGE：中央に配置 */
-    .moves-val + .ui-section-title {
-        grid-column: 1 / -1;
-        grid-row: 4;
-        margin-bottom: 0;
-        text-align: center;
+    /* GAUGE/BURSTパネル */
+    #right-ui-bottom {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+        border: 4px solid #fff;
+        padding: 16px 20px;
+        width: 100%;
+        max-width: 385px;
+        box-sizing: border-box;
+        gap: 0;
     }
     .gauge-bar-bg {
-        grid-column: 1 / -1;
-        grid-row: 5;
-        margin: 0 auto 4px auto;
         width: 100%;
-        max-width: 200px; /* ゲージも少し省スペースに */
+        max-width: 240px;
+        margin-bottom: 12px;
     }
-
-    /* SKILL BOX：最下部に横いっぱいに配置 */
     #skill-box {
-        grid-column: 1 / -1;
-        grid-row: 6;
-        margin-bottom: 0;
-        padding: 12px 14px; /* 内余白を少し詰める */
+        width: 100%;
+        padding: 12px 14px;
     }
 }
+/*@mediaここまで*/
 	
 </style>
 </head>
@@ -747,24 +791,28 @@ background: #ffd6d6;
       </div>
       : MOVES <span id="status-moves" class="status-moves-val">10</span></span> </div>
   </div>
-  <div id="right-ui">
-    <div id="best-score" class="best-score-label">BEST: 0000</div>
-    <div class="ui-section-title">SCORE</div>
-    <div id="score" class="score-val">0</div>
-    <div class="ui-section-title">MOVES</div>
-    <div id="moves" class="moves-val">3</div>
-    <div class="ui-section-title">RAINBOW GAUGE</div>
-    <div class="gauge-bar-bg">
-      <div id="gauge-fill" class="gauge-bar-fill"></div>
+<div id="right-ui">
+    <div id="right-ui-top">
+      <div id="best-score" class="best-score-label">BEST: 0000</div>
+      <div class="ui-section-title">SCORE</div>
+      <div id="score" class="score-val">0</div>
+      <div class="ui-section-title">MOVES</div>
+      <div id="moves" class="moves-val">3</div>
     </div>
-    <div class="skill-combined-box" id="skill-box">
-      <div class="stock-container" id="stars-container-row">
-        <div id="stock-1" class="stock-star">★</div>
-        <div id="stock-2" class="stock-star">★</div>
-        <div id="stock-3" class="stock-star">★</div>
+    <div id="right-ui-bottom">
+      <div class="ui-section-title">RAINBOW GAUGE</div>
+      <div class="gauge-bar-bg">
+        <div id="gauge-fill" class="gauge-bar-fill"></div>
       </div>
-      <button id="skill-btn" onclick="triggerSkillWithEffects()" disabled>RAINBOW<br>
-      BURST!</button>
+      <div class="skill-combined-box" id="skill-box">
+        <div class="stock-container" id="stars-container-row">
+          <div id="stock-1" class="stock-star">★</div>
+          <div id="stock-2" class="stock-star">★</div>
+          <div id="stock-3" class="stock-star">★</div>
+        </div>
+        <button id="skill-btn" onclick="triggerSkillWithEffects()" disabled>RAINBOW<br>
+        BURST!</button>
+      </div>
     </div>
   </div>
 </div>
@@ -775,8 +823,10 @@ background: #ffd6d6;
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
-  </span>雷玉・七色の玉…色パネルを消した時に隣接していると一緒に消えるよ<br>
-  RAINBOW BURST! ボタン… <span class="mini-obstacle-img">
+  </span>雷玉・七色の玉…<br>
+	色パネルを消した時に隣接していると一緒に消えるよ<br>
+  RAINBOW BURST! ボタン…<br>
+	<span class="mini-obstacle-img">
   <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
     <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
   </svg>
