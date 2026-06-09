@@ -27,7 +27,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: flex;  /* デバッグパネル表示flex・非表示none */
+    display: none;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -93,12 +93,10 @@ canvas {
     border-radius: 12px;
     image-rendering: pixelated;
 }
-	
 /* スマホのタップ時の青いハイライトを無効化 */
 * {
     -webkit-tap-highlight-color: transparent;
 }
-	
 /* 下側レベル表示UI */
 #level-status-bar {
     background: white;
@@ -515,6 +513,13 @@ opacity: 0;
     text-align: center;
     line-height: 1.8;
 }
+/*罫線のデザイン*/
+.desc-divider {
+    border: none;
+    border-top: 2px solid #ffffff; /* 線の太さと色（solid：実線 dashed：破線 dotted：点線） */
+    margin: 4px auto; /* 上下の隙間 */
+    width: 80%;
+}
 /* ゲームリセットボタン */
 #reset-btn {
     margin-top: 10px;
@@ -569,120 +574,123 @@ background: #ffd6d6;
     background-clip: text;
     text-shadow: none;
 }
-	
+
 /* メディアクリエ */
 @media (max-width: 768px) {
-    body {
-        padding: 16px 12px;
-        overflow-x: hidden;
-    }
-
-    #main-layout {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* right-uiを透明ラッパー化してtop/bottomを独立したflexアイテムに */
-    #right-ui {
-        display: contents;
-    }
-
-    /* 並び順：top → left-area → bottom */
-    #right-ui-top    { order: 1; }
-    #left-area       { order: 2; }
-    #right-ui-bottom { order: 3; }
-
-    /* SCORE/MOVESパネル */
-    #right-ui-top {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-        border: 4px solid #fff;
-        padding: 12px 20px;
-        width: 100%;
-        max-width: 385px;
-        box-sizing: border-box;
-        gap: 0;
-    }
-    #best-score {
-        display: none; /* スマホでは非表示 */
-    }
-    #right-ui-top .ui-section-title {
-        text-align: center;
-        margin-bottom: 2px;
-    }
-    .score-val {
-        font-size: 32px;
-        margin-bottom: 0;
-        text-align: center;
-    }
-    .moves-val {
-        font-size: 32px;
-        margin-bottom: 0;
-        text-align: center;
-    }
-
-    /* ゲーム盤面エリア */
-    #left-area {
-        width: 100%;
-        max-width: 385px;
-        box-sizing: border-box;
-        gap: 10px;
-    }
-    #game-container {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-    canvas {
-        width: 100% !important;
-        height: auto !important;
-    }
-    .rb-slot {
-        width: 20px;
-        height: 20px;
-    }
-    #level-status-bar {
-        padding: 10px 14px;
-        font-size: 13px;
-    }
-    .status-level-val  { font-size: 16px; }
-    .status-moves-val  { font-size: 16px; }
-
-    /* GAUGE/BURSTパネル */
-    #right-ui-bottom {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-        border: 4px solid #fff;
-        padding: 16px 20px;
-        width: 100%;
-        max-width: 385px;
-        box-sizing: border-box;
-        gap: 0;
-    }
-    .gauge-bar-bg {
-        width: 100%;
-        max-width: 240px;
-        margin-bottom: 12px;
-    }
-    #skill-box {
-        width: 100%;
-        padding: 12px 14px;
-    }
+body {
+    padding: 16px 12px;
+    overflow-x: hidden;
+}
+#main-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+/* right-uiを透明ラッパー化してtop/bottomを独立したflexアイテムに */
+#right-ui {
+    display: contents;
+}
+/* 並び順：top → left-area → bottom */
+#right-ui-top {
+    order: 1;
+}
+#left-area {
+    order: 2;
+}
+#right-ui-bottom {
+    order: 3;
+}
+/* SCORE/MOVESパネル */
+#right-ui-top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+    border: 4px solid #fff;
+    padding: 12px 20px;
+    width: 100%;
+    max-width: 385px;
+    box-sizing: border-box;
+    gap: 0;
+}
+#best-score {
+    display: none; /* スマホでは非表示 */
+}
+#right-ui-top .ui-section-title {
+    text-align: center;
+    margin-bottom: 2px;
+}
+.score-val {
+    font-size: 32px;
+    margin-bottom: 0;
+    text-align: center;
+}
+.moves-val {
+    font-size: 32px;
+    margin-bottom: 0;
+    text-align: center;
+}
+/* ゲーム盤面エリア */
+#left-area {
+    width: 100%;
+    max-width: 385px;
+    box-sizing: border-box;
+    gap: 10px;
+}
+#game-container {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+.rb-slot {
+    width: 20px;
+    height: 20px;
+}
+#level-status-bar {
+    padding: 10px 14px;
+    font-size: 13px;
+}
+.status-level-val {
+    font-size: 16px;
+}
+.status-moves-val {
+    font-size: 16px;
+}
+/* GAUGE/BURSTパネル */
+#right-ui-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+    border: 4px solid #fff;
+    padding: 16px 20px;
+    width: 100%;
+    max-width: 385px;
+    box-sizing: border-box;
+    gap: 0;
+}
+.gauge-bar-bg {
+    width: 100%;
+    max-width: 240px;
+    margin-bottom: 12px;
+}
+#skill-box {
+    width: 100%;
+    padding: 12px 14px;
+}
 }
 /*@mediaここまで*/
-	
 </style>
 </head>
 
@@ -791,7 +799,7 @@ background: #ffd6d6;
       </div>
       : MOVES <span id="status-moves" class="status-moves-val">10</span></span> </div>
   </div>
-<div id="right-ui">
+  <div id="right-ui">
     <div id="right-ui-top">
       <div id="best-score" class="best-score-label">BEST: 0000</div>
       <div class="ui-section-title">SCORE</div>
@@ -817,20 +825,24 @@ background: #ffd6d6;
   </div>
 </div>
 <!-- ゲームの説明文 -->
-<div class="description">3手以内に同じ色のパネルを縦横3つ繋げて消してハイスコアを目指そう！<br>
-  連鎖すると虹色ゲージが貯まってBURSTカウンター（★）が増えるよ<br>
-  <span class="mini-dark-img"></span>闇玉・ <span class="mini-rainbow-img"></span>虹玉・<span class="mini-allclear-img">
+<div class="description">3手以内に同じ色のパネルを<br>
+  縦横3つ繋げて消してハイスコアを目指そう！<br>
+  連鎖すると虹色ゲージが貯まって<br>
+  BURSTカウンター（★）が増えるよ<br>
+  <hr class="desc-divider">
+  《<span class="mini-dark-img"></span>闇玉・ <span class="mini-rainbow-img"></span>虹玉・<span class="mini-allclear-img">
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
-  </span>雷玉・七色の玉…<br>
-	色パネルを消した時に隣接していると一緒に消えるよ<br>
-  RAINBOW BURST! ボタン…<br>
-	<span class="mini-obstacle-img">
+  </span>雷玉・七色の玉》<br>
+  色パネルを消した時に隣接していると一緒に消えるよ<br>
+  <hr class="desc-divider">
+  《RAINBOW BURST! ボタン》<br>
+  <span class="mini-obstacle-img">
   <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
     <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
   </svg>
-  </span> お邪魔パネル や <span class="mini-dark-img"></span> 闇玉、<span class="mini-allclear-img">
+  </span> お邪魔パネル・ <span class="mini-dark-img"></span> 闇玉・<span class="mini-allclear-img">
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
