@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.3.5)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.3.6)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -19,6 +19,10 @@ body {
     color: #2c3e50;
     user-select: none;
 }
+/* スマホのタップ時の青いハイライトを無効化 */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
 /* デバッグパネル */
 #debug-panel {
     background: #2c3e50;
@@ -27,7 +31,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: none;  /* デバッグパネル表示flex・非表示none */
+    display: flex;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -63,7 +67,7 @@ body {
     position: relative;
     display: flex;
     align-items: flex-start;
-    gap: 35px;
+    gap: 16px;
 }
 /* 左側エリア（盤面 ＋ 下部レベルUI） */
 #left-area {
@@ -87,15 +91,14 @@ body {
     width: 24px;
     height: 24px;
 }
+#rainbow-collection-ui {
+    padding: 6px 14px;
+}
 canvas {
     display: block;
     cursor: pointer;
     border-radius: 12px;
     image-rendering: pixelated;
-}
-/* スマホのタップ時の青いハイライトを無効化 */
-* {
-    -webkit-tap-highlight-color: transparent;
 }
 /* 下側レベル表示UI */
 #level-status-bar {
@@ -217,7 +220,7 @@ canvas {
     border-radius: 24px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.04);
     border: 4px solid #fff;
-    min-width: 210px;
+    min-width: 240px; /* 左枠の横幅サイズ */
     box-sizing: border-box;
 }
 #right-ui-top {
@@ -225,7 +228,7 @@ canvas {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 25px 25px 15px 25px;
+    padding: 25px 10px 15px 10px;
     box-sizing: border-box;
 }
 #right-ui-bottom {
@@ -233,7 +236,7 @@ canvas {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 15px 25px 25px 25px;
+    padding: 15px 10px 25px 10px;
     box-sizing: border-box;
 }
 .ui-section-title {
@@ -272,7 +275,7 @@ canvas {
 }
 /* 虹色ゲージの土台 */
 .gauge-bar-bg {
-    width: 150px;
+    width: 100%;
     height: 28px;
     background: #e2e8f0;
     border-radius: 20px;
@@ -314,7 +317,7 @@ background-position: -200% 0%;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
     position: relative;
 }
@@ -612,7 +615,7 @@ body {
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.04);
     border: 4px solid #fff;
-    padding: 12px 20px;
+    padding: 6px 20px;
     width: 100%;
     max-width: 385px;
     box-sizing: border-box;
@@ -626,12 +629,12 @@ body {
     margin-bottom: 2px;
 }
 .score-val {
-    font-size: 32px;
+    font-size: 24px;
     margin-bottom: 0;
     text-align: center;
 }
 .moves-val {
-    font-size: 32px;
+    font-size: 24px;
     margin-bottom: 0;
     text-align: center;
 }
@@ -655,9 +658,12 @@ canvas {
     width: 20px;
     height: 20px;
 }
+#rainbow-collection-ui {
+    padding: 6px 14px;
+}
 #level-status-bar {
-    padding: 10px 14px;
-    font-size: 13px;
+    padding: 6px 14px;
+    font-size: 12px;
 }
 .status-level-val {
     font-size: 16px;
@@ -665,16 +671,16 @@ canvas {
 .status-moves-val {
     font-size: 16px;
 }
-/* GAUGE/BURSTパネル */
+/* GAUGEとBURSTパネルのサイズ */
 #right-ui-bottom {
     display: flex;
     flex-direction: column;
     align-items: center;
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.04);
     border: 4px solid #fff;
-    padding: 16px 20px;
+    padding: 4px 20px;
     width: 100%;
     max-width: 385px;
     box-sizing: border-box;
@@ -683,13 +689,13 @@ canvas {
 .gauge-bar-bg {
     width: 100%;
     max-width: 240px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 #skill-box {
     width: 100%;
-    padding: 12px 14px;
+    padding: 8px 20px;
 }
-}
+	}
 /*@mediaここまで*/
 </style>
 </head>
@@ -759,7 +765,7 @@ canvas {
 <div id="main-layout">
   <div id="left-area">
     <div id="game-container">
-      <div id="rainbow-collection-ui" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:#fff; padding:10px 14px; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.04); border:3px solid #fff;">
+      <div id="rainbow-collection-ui" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:#fff; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.04); border:3px solid #fff;">
         <div id="rainbow-balls-display" style="display:flex; gap:6px;">
           <div class="rb-slot" style="border-radius:50%; background:#b2bec3; order:0;"></div>
           <!-- 赤 -->
