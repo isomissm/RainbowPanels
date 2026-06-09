@@ -31,7 +31,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: none;  /* デバッグパネル表示flex・非表示none */
+    display: flex;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -257,7 +257,7 @@ canvas {
     font-variant-numeric: tabular-nums;
 }
 .score-val {
-    font-size: 42px;
+    font-size: 36px;
     font-weight: 900;
     color: #4a90e2;
     text-shadow: 1px 1px 0px #fff;
@@ -266,12 +266,15 @@ canvas {
     font-variant-numeric: tabular-nums;
 }
 .moves-val {
-    font-size: 42px;
+    font-size: 52px;
     font-weight: 900;
     color: #ff7675;
     text-shadow: 1px 1px 0px #fff;
     line-height: 1;
     margin-bottom: 30px;
+}
+.score-group {
+    display: contents;
 }
 /* 虹色ゲージの土台 */
 .gauge-bar-bg {
@@ -627,16 +630,23 @@ body {
 #right-ui-top .ui-section-title {
     text-align: center;
     margin-bottom: 2px;
+	font-size: 16px;
 }
 .score-val {
-    font-size: 24px;
+    font-size: 20px;
     margin-bottom: 0;
     text-align: center;
 }
 .moves-val {
-    font-size: 24px;
+    font-size: 36px;
     margin-bottom: 0;
     text-align: center;
+}
+.score-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
 }
 /* ゲーム盤面エリア */
 #left-area {
@@ -662,16 +672,16 @@ canvas {
     padding: 6px 14px;
 }
 #level-status-bar {
-    padding: 6px 14px;
-    font-size: 12px;
+    padding: 10px 14px;
+    font-size: 15px;
 }
 .status-level-val {
-    font-size: 16px;
+    font-size: 18px;
 }
 .status-moves-val {
-    font-size: 16px;
+    font-size: 18px;
 }
-/* GAUGEとBURSTパネルのサイズ */
+	/* GAUGEとBURSTパネルのサイズ */
 #right-ui-bottom {
     display: flex;
     flex-direction: column;
@@ -807,12 +817,16 @@ canvas {
   </div>
   <div id="right-ui">
     <div id="right-ui-top">
-      <div id="best-score" class="best-score-label">BEST: 0000</div>
-      <div class="ui-section-title">SCORE</div>
-      <div id="score" class="score-val">0</div>
-      <div class="ui-section-title">MOVES</div>
-      <div id="moves" class="moves-val">3</div>
-    </div>
+		<div id="best-score" class="best-score-label">BEST: 0000</div>
+		<div class="score-group">
+		  <div class="ui-section-title">SCORE</div>
+		  <div id="score" class="score-val">0</div>
+		</div>
+		<div class="score-group">
+		  <div class="ui-section-title">MOVES</div>
+		  <div id="moves" class="moves-val">3</div>
+		</div>
+	</div>
     <div id="right-ui-bottom">
       <div class="ui-section-title">RAINBOW GAUGE</div>
       <div class="gauge-bar-bg">
