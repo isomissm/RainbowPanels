@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.3.1)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.3.6)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -18,6 +18,10 @@ body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     color: #2c3e50;
     user-select: none;
+}
+/* スマホのタップ時の青いハイライトを無効化 */
+* {
+    -webkit-tap-highlight-color: transparent;
 }
 /* デバッグパネル */
 #debug-panel {
@@ -63,7 +67,7 @@ body {
     position: relative;
     display: flex;
     align-items: flex-start;
-    gap: 35px;
+    gap: 16px;
 }
 /* 左側エリア（盤面 ＋ 下部レベルUI） */
 #left-area {
@@ -86,6 +90,9 @@ body {
 .rb-slot {
     width: 24px;
     height: 24px;
+}
+#rainbow-collection-ui {
+    padding: 6px 14px;
 }
 canvas {
     display: block;
@@ -209,11 +216,27 @@ canvas {
     flex-direction: column;
     align-items: center;
     background: #ffffff;
-    padding: 25px 25px;
+    padding: 0;
     border-radius: 24px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.04);
     border: 4px solid #fff;
-    min-width: 210px;
+    min-width: 240px; /* 左枠の横幅サイズ */
+    box-sizing: border-box;
+}
+#right-ui-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 25px 10px 15px 10px;
+    box-sizing: border-box;
+}
+#right-ui-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 15px 10px 25px 10px;
     box-sizing: border-box;
 }
 .ui-section-title {
@@ -234,7 +257,7 @@ canvas {
     font-variant-numeric: tabular-nums;
 }
 .score-val {
-    font-size: 42px;
+    font-size: 36px;
     font-weight: 900;
     color: #4a90e2;
     text-shadow: 1px 1px 0px #fff;
@@ -243,16 +266,19 @@ canvas {
     font-variant-numeric: tabular-nums;
 }
 .moves-val {
-    font-size: 42px;
+    font-size: 52px;
     font-weight: 900;
     color: #ff7675;
     text-shadow: 1px 1px 0px #fff;
     line-height: 1;
     margin-bottom: 30px;
 }
+.score-group {
+    display: contents;
+}
 /* 虹色ゲージの土台 */
 .gauge-bar-bg {
-    width: 150px;
+    width: 100%;
     height: 28px;
     background: #e2e8f0;
     border-radius: 20px;
@@ -294,7 +320,7 @@ background-position: -200% 0%;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
     position: relative;
 }
@@ -493,6 +519,13 @@ opacity: 0;
     text-align: center;
     line-height: 1.8;
 }
+/*罫線のデザイン*/
+.desc-divider {
+    border: none;
+    border-top: 2px solid #ffffff; /* 線の太さと色（solid：実線 dashed：破線 dotted：点線） */
+    margin: 4px auto; /* 上下の隙間 */
+    width: 80%;
+}
 /* ゲームリセットボタン */
 #reset-btn {
     margin-top: 10px;
@@ -547,6 +580,133 @@ background: #ffd6d6;
     background-clip: text;
     text-shadow: none;
 }
+
+/* メディアクリエ */
+@media (max-width: 768px) {
+body {
+    padding: 16px 12px;
+    overflow-x: hidden;
+}
+#main-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+/* right-uiを透明ラッパー化してtop/bottomを独立したflexアイテムに */
+#right-ui {
+    display: contents;
+}
+/* 並び順：top → left-area → bottom */
+#right-ui-top {
+    order: 1;
+}
+#left-area {
+    order: 2;
+}
+#right-ui-bottom {
+    order: 3;
+}
+/* SCORE/MOVESパネル */
+#right-ui-top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+    border: 4px solid #fff;
+    padding: 6px 20px;
+    width: 100%;
+    max-width: 385px;
+    box-sizing: border-box;
+    gap: 0;
+}
+#best-score {
+    display: none; /* スマホでは非表示 */
+}
+#right-ui-top .ui-section-title {
+    text-align: center;
+    margin-bottom: 2px;
+	font-size: 16px;
+}
+.score-val {
+    font-size: 28px;
+    margin-bottom: 0;
+    text-align: center;
+}
+.moves-val {
+    font-size: 36px;
+    margin-bottom: 0;
+    text-align: center;
+}
+.score-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+/* ゲーム盤面エリア */
+#left-area {
+    width: 100%;
+    max-width: 385px;
+    box-sizing: border-box;
+    gap: 10px;
+}
+#game-container {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+.rb-slot {
+    width: 20px;
+    height: 20px;
+}
+#rainbow-collection-ui {
+    padding: 6px 14px;
+}
+#level-status-bar {
+    padding: 10px 14px;
+    font-size: 15px;
+}
+.status-level-val {
+    font-size: 18px;
+}
+.status-moves-val {
+    font-size: 18px;
+}
+	/* GAUGEとBURSTパネルのサイズ */
+#right-ui-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.04);
+    border: 4px solid #fff;
+    padding: 4px 20px;
+    width: 100%;
+    max-width: 385px;
+    box-sizing: border-box;
+    gap: 0;
+}
+.gauge-bar-bg {
+    width: 100%;
+    max-width: 240px;
+    margin-bottom: 8px;
+}
+#skill-box {
+    width: 100%;
+    padding: 8px 20px;
+}
+	}
+/*@mediaここまで*/
 </style>
 </head>
 
@@ -615,7 +775,7 @@ background: #ffd6d6;
 <div id="main-layout">
   <div id="left-area">
     <div id="game-container">
-      <div id="rainbow-collection-ui" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:#fff; padding:10px 14px; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.04); border:3px solid #fff;">
+      <div id="rainbow-collection-ui" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:#fff; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.04); border:3px solid #fff;">
         <div id="rainbow-balls-display" style="display:flex; gap:6px;">
           <div class="rb-slot" style="border-radius:50%; background:#b2bec3; order:0;"></div>
           <!-- 赤 -->
@@ -637,7 +797,7 @@ background: #ffd6d6;
       <div id="allclear-overlay"></div>
       <div id="overlay">
         <h2 style="font-size:26px; margin: 5px 0 2px 0; letter-spacing: 0.05em; color: #ff7675;">GAME OVER</h2>
-        <div id="final-score" style="font-size:16px; font-weight: 900; margin-bottom: 10px; color: #fff;"></div>
+        <div id="final-score" style="font-size:28px; font-weight: 900; margin-bottom: 10px; color: #fff;"></div>
         <div id="name-input-box" style="margin-bottom: 12px; display: none; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 12px;"> <span style="font-size:11px; font-weight:bold; color:#ffe53b; display:block; margin-bottom:4px;">🎉 ランクイン！ 名前を入力してね</span>
           <input type="text" id="player-name-field" maxlength="8" value="Player" style="padding:4px 8px; width:100px; border-radius:6px; border:none; outline:none; font-weight:bold; font-size:12px; margin-right:5px; text-align:center;">
           <button onclick="saveRankedScore()" style="padding:5px 12px; border-radius:12px; border:none; background: linear-gradient(90deg, #ff4757, #ffe53b, #2ed573, #1e90ff, #c175ff, #ff4757); background-size: 200% 100%; animation: rainbowFlow 4s linear infinite; color:white; font-size:12px; font-weight:900; cursor:pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.2);">登録する</button>
@@ -656,39 +816,53 @@ background: #ffd6d6;
       : MOVES <span id="status-moves" class="status-moves-val">10</span></span> </div>
   </div>
   <div id="right-ui">
-    <div id="best-score" class="best-score-label">BEST: 0000</div>
-    <div class="ui-section-title">SCORE</div>
-    <div id="score" class="score-val">0</div>
-    <div class="ui-section-title">MOVES</div>
-    <div id="moves" class="moves-val">3</div>
-    <div class="ui-section-title">RAINBOW GAUGE</div>
-    <div class="gauge-bar-bg">
-      <div id="gauge-fill" class="gauge-bar-fill"></div>
-    </div>
-    <div class="skill-combined-box" id="skill-box">
-      <div class="stock-container" id="stars-container-row">
-        <div id="stock-1" class="stock-star">★</div>
-        <div id="stock-2" class="stock-star">★</div>
-        <div id="stock-3" class="stock-star">★</div>
+    <div id="right-ui-top">
+		<div id="best-score" class="best-score-label">BEST: 0000</div>
+		<div class="score-group">
+		  <div class="ui-section-title">SCORE</div>
+		  <div id="score" class="score-val">0</div>
+		</div>
+		<div class="score-group">
+		  <div class="ui-section-title">MOVES</div>
+		  <div id="moves" class="moves-val">3</div>
+		</div>
+	</div>
+    <div id="right-ui-bottom">
+      <div class="ui-section-title">RAINBOW GAUGE</div>
+      <div class="gauge-bar-bg">
+        <div id="gauge-fill" class="gauge-bar-fill"></div>
       </div>
-      <button id="skill-btn" onclick="triggerSkillWithEffects()" disabled>RAINBOW<br>
-      BURST!</button>
+      <div class="skill-combined-box" id="skill-box">
+        <div class="stock-container" id="stars-container-row">
+          <div id="stock-1" class="stock-star">★</div>
+          <div id="stock-2" class="stock-star">★</div>
+          <div id="stock-3" class="stock-star">★</div>
+        </div>
+        <button id="skill-btn" onclick="triggerSkillWithEffects()" disabled>RAINBOW<br>
+        BURST!</button>
+      </div>
     </div>
   </div>
 </div>
 <!-- ゲームの説明文 -->
-<div class="description">3手以内に同じ色のパネルを縦横3つ繋げて消してハイスコアを目指そう！<br>
-  連鎖すると虹色ゲージが貯まってBURSTカウンター（★）が増えるよ<br>
-  <span class="mini-dark-img"></span>闇玉・ <span class="mini-rainbow-img"></span>虹玉・<span class="mini-allclear-img">
+<div class="description">3手以内に同じ色のパネルを<br>
+  縦横3つ繋げて消してハイスコアを目指そう！<br>
+  連鎖すると虹色ゲージが貯まって<br>
+  BURSTカウンター（★）が増えるよ<br>
+  <hr class="desc-divider">
+  《<span class="mini-dark-img"></span>闇玉・ <span class="mini-rainbow-img"></span>虹玉・<span class="mini-allclear-img">
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
-  </span>雷玉・七色の玉…色パネルを消した時に隣接していると一緒に消えるよ<br>
-  RAINBOW BURST! ボタン… <span class="mini-obstacle-img">
+  </span>雷玉・七色の玉》<br>
+  色パネルを消した時に隣接していると一緒に消えるよ<br>
+  <hr class="desc-divider">
+  《RAINBOW BURST! ボタン》<br>
+  <span class="mini-obstacle-img">
   <svg width="14" height="14" viewBox="0 0 85 85" fill="white">
     <path d="M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z"/>
   </svg>
-  </span> お邪魔パネル や <span class="mini-dark-img"></span> 闇玉、<span class="mini-allclear-img">
+  </span> お邪魔パネル・ <span class="mini-dark-img"></span> 闇玉・<span class="mini-allclear-img">
   <svg width="8" height="12" viewBox="-15 -18 30 36" fill="#ffe600">
     <polygon points="5,-18 -15,3 -3,3 -5,18 15,-3 3,-3"/>
   </svg>
@@ -764,7 +938,7 @@ background: #ffd6d6;
 
         GAUGE_MAX: 5,                // レインボーゲージの最大値
         DARK_PANEL_INIT_COUNT: 9,    // 闇玉出現時の初期カウントダウン数値
-	DARK_PANEL_FAST_COUNT: 5,    // 闇玉（高速）出現時の初期カウントダウン数値
+		DARK_PANEL_FAST_COUNT: 5,    // 闇玉（高速）出現時の初期カウントダウン数値
 
 	// ── レベル上昇の設定 ──
 	// 各レベルの設定：{ threshold: お邪魔パネルドロップ数（通算）, pace: お邪魔パネル出現間隔（手数）}
@@ -1198,6 +1372,16 @@ ctx.restore();
             darkPanelThreshold = (Math.floor((score - CONFIG.THRESHOLD.DARK_START) / CONFIG.THRESHOLD.DARK_INTERVAL) + 1) * CONFIG.THRESHOLD.DARK_INTERVAL + CONFIG.THRESHOLD.DARK_START;
         } else {
             darkPanelThreshold = CONFIG.THRESHOLD.DARK_START;
+        }
+		if (score >= CONFIG.THRESHOLD.DARK_FAST_START) {
+            darkFastThreshold = (Math.floor((score - CONFIG.THRESHOLD.DARK_FAST_START) / CONFIG.THRESHOLD.DARK_FAST_INTERVAL) + 1) * CONFIG.THRESHOLD.DARK_FAST_INTERVAL + CONFIG.THRESHOLD.DARK_FAST_START;
+        } else {
+            darkFastThreshold = CONFIG.THRESHOLD.DARK_FAST_START;
+        }
+        if (score >= CONFIG.THRESHOLD.ALMIGHTY_START) {
+            almightyThreshold = (Math.floor((score - CONFIG.THRESHOLD.ALMIGHTY_START) / CONFIG.THRESHOLD.ALMIGHTY_INTERVAL) + 1) * CONFIG.THRESHOLD.ALMIGHTY_INTERVAL + CONFIG.THRESHOLD.ALMIGHTY_START;
+        } else {
+            almightyThreshold = CONFIG.THRESHOLD.ALMIGHTY_START;
         }
         draw();
     }
