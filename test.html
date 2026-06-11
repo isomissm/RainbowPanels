@@ -31,7 +31,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: none;  /* デバッグパネル表示flex・非表示none */
+    display: flex;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -2312,7 +2312,9 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 					const ballFromY = canvasRect.top  + (s.r * CONFIG.CELL_SIZE) + (CONFIG.CELL_SIZE / 2);
 					collectRainbowBall(board[s.r][s.c] - 102, ballFromX, ballFromY);
 				} else if (board[s.r][s.c] === CONFIG.PANEL_TYPE.ALLCLEAR) {
+					board[s.r][s.c] = -1;
 					await triggerAllClear(s.c, s.r);
+					continue;
 				}
 				board[s.r][s.c] = -1;
 			}
