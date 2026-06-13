@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.4.0)</title>
+<title>3つ並べパズル - Rainbow Panels (ver4.5.0)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -31,7 +31,7 @@ body {
     border-radius: 10px;
     margin-bottom: 25px;
     font-size: 12px;
-    display: flex;  /* デバッグパネル表示flex・非表示none */
+    display: none;  /* デバッグパネル表示flex・非表示none */
     align-items: flex-start;
     gap: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -630,7 +630,7 @@ body {
 #right-ui-top .ui-section-title {
     text-align: center;
     margin-bottom: 2px;
-	font-size: 16px;
+    font-size: 16px;
 }
 .score-val {
     font-size: 28px;
@@ -681,7 +681,7 @@ canvas {
 .status-moves-val {
     font-size: 18px;
 }
-	/* GAUGEとBURSTパネルのサイズ */
+/* GAUGEとBURSTパネルのサイズ */
 #right-ui-bottom {
     display: flex;
     flex-direction: column;
@@ -705,12 +705,13 @@ canvas {
     width: 100%;
     padding: 8px 20px;
 }
-	}
+}
 /*@mediaここまで*/
 </style>
 </head>
 
 <body>
+<!--デバッグパネル内部のレイアウト-->
 <div id="debug-panel">
   <div id="debug-left" style="display:flex; flex-direction:column; gap:10px;">
     <div class="debug-row"> <span>玉追加:</span>
@@ -729,13 +730,16 @@ canvas {
         </div>
       </div>
     </div>
-    <div class="debug-row"> <span>SCORE:</span>
-      <input type="number" id="debug-score-input" value="0">
+    <div class="debug-row" style="flex-direction: column; align-items: flex-start;">
+      <div style="display:flex; align-items:center; gap:8px;"> <span>SCORE:</span>
+        <input type="number" id="debug-score-input" value="0">
+        <button onclick="applyDebugScore()" style="padding: 4px 8px; font-size: 12px; cursor: pointer; border-radius: 4px; border: none; background: #34495e; color: white;">反映</button>
+      </div>
       <div class="debug-btns">
-        <button onclick="applyDebugScore()">反映</button>
         <button onclick="setDebugScore(CONFIG.THRESHOLD.LIGHT_START - 200)">虹玉直前</button>
-		<button onclick="setDebugScore(CONFIG.THRESHOLD.DARK_START - 200)">闇玉直前</button>
-		<button onclick="setDebugScore(CONFIG.THRESHOLD.ALMIGHTY_START - 200)">プリズム直前</button>
+        <button onclick="setDebugScore(CONFIG.THRESHOLD.DARK_START - 200)">闇玉直前</button>
+        <button onclick="setDebugScore(CONFIG.THRESHOLD.ALMIGHTY_START - 200)">プリズム直前</button>
+        <button onclick="addSingleSpecialPanel(CONFIG.PANEL_TYPE.SUNNY)" style="color:#ff9300;">晴玉</button>
       </div>
     </div>
     <div class="debug-row"> <span>LEVEL:</span>
@@ -771,6 +775,7 @@ canvas {
     <div id="dbg-prog-4" style="color:#c175ff;">紫   0 / 50</div>
     <div id="dbg-prog-5" style="color:#ff9300;">橙   0 / 30</div>
     <div id="dbg-prog-6" style="color:#a29bfe;">藍   0 / 20</div>
+    <div id="debug-time">TIME: 00:00:00</div>
   </div>
 </div>
 <div id="main-layout">
@@ -818,16 +823,16 @@ canvas {
   </div>
   <div id="right-ui">
     <div id="right-ui-top">
-		<div id="best-score" class="best-score-label">BEST: 0000</div>
-		<div class="score-group">
-		  <div class="ui-section-title">SCORE</div>
-		  <div id="score" class="score-val">0</div>
-		</div>
-		<div class="score-group">
-		  <div class="ui-section-title">MOVES</div>
-		  <div id="moves" class="moves-val">3</div>
-		</div>
-	</div>
+      <div id="best-score" class="best-score-label">BEST: 0000</div>
+      <div class="score-group">
+        <div class="ui-section-title">SCORE</div>
+        <div id="score" class="score-val">0</div>
+      </div>
+      <div class="score-group">
+        <div class="ui-section-title">MOVES</div>
+        <div id="moves" class="moves-val">3</div>
+      </div>
+    </div>
     <div id="right-ui-bottom">
       <div class="ui-section-title">RAINBOW GAUGE</div>
       <div class="gauge-bar-bg">
@@ -1001,7 +1006,9 @@ const CONFIG = {
             ALMIGHTY_START:  12000,  // プリズムが初めて出現するスコア
             ALMIGHTY_INTERVAL: 1500, // 以降のプリズム出現間隔
             DARK_FAST_START: 12800,  // 高速闇玉が初めて出現するスコア
-            DARK_FAST_INTERVAL: 3000 // 以降の高速闇玉出現間隔
+            DARK_FAST_INTERVAL: 3000, // 以降の高速闇玉出現間隔
+            SUNNY_START:     20000,  // 晴玉が初めて出現するスコア
+            SUNNY_INTERVAL:   2000,  // 以降の晴玉出現間隔
         },
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1054,7 +1061,11 @@ const CONFIG = {
             BALL_MAX: 108, // 七色玉IDの最大値（範囲チェック用）
             ALLCLEAR: 109,
             ALMIGHTY: 110,
+            SUNNY:    111, // 晴玉：周辺パネルを赤に変換
         },
+
+        SUNNY_RADIUS: 2,  // 晴玉の効果範囲（マンハッタン距離）
+		SUNNY_CONVERT_NORMAL: false,  // trueにすると通常パネルも赤に変換
     };
 
     // ────────────────────────────────────────────────────────
@@ -1074,6 +1085,9 @@ const CONFIG = {
     let moves = CONFIG.INITIAL_MOVES;
     let isAnimating = false;
     let isGameOver = false;
+
+    let gameStartTime = null;
+    let gameElapsedTime = 0;
     
     let totalSpentMoves = 0;      
     let obstacleDropCount = 0;    
@@ -1083,6 +1097,7 @@ const CONFIG = {
     let darkPanelThreshold = CONFIG.THRESHOLD.DARK_START;
 	let almightyThreshold = CONFIG.THRESHOLD.ALMIGHTY_START;
 	let darkFastThreshold = CONFIG.THRESHOLD.DARK_FAST_START;
+	let sunnyThreshold = CONFIG.THRESHOLD.SUNNY_START;
     let dangerCounts = {}; 
     
     let selectionPulse = 0;
@@ -1100,7 +1115,9 @@ const CONFIG = {
 	let shakingCells = new Set();
 	let flashingCells = new Set();
 	let darkOverlayAlpha = 0;
+	let sunnyOverlayAlpha = 0;
 	let flashAlpha = 0.9;
+	let flashColor = '#ffe600';
     let isLevelRainbow = false;
 	let allClearSpawnCount = null;
     let levelRainbowCount = 0;
@@ -1216,6 +1233,40 @@ ctx.lineTo(  3*s,  -3*s);
 		get isFinished() {
 			return this.blobs.every(b => b.alpha <= 0);
 		}
+	}
+	
+	class SunnyEffect {
+		constructor(x, y) {
+			this.x = x; this.y = y;
+			this.rings = [
+				{ r: 0, alpha: 0.9, speed: 1.8 },
+				{ r: 0, alpha: 0.6, speed: 1.2 },
+				{ r: 0, alpha: 0.4, speed: 0.7 },
+			];
+		}
+		update() {
+			this.rings.forEach(ring => {
+				ring.r += ring.speed;
+				ring.alpha -= 0.022;
+			});
+		}
+		draw() {
+			this.rings.forEach(ring => {
+				if (ring.alpha <= 0) return;
+				ctx.save();
+				ctx.globalAlpha = ring.alpha;
+				let grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, ring.r);
+				grad.addColorStop(0,   "rgba(255, 200, 50, 1.0)");
+				grad.addColorStop(0.5, "rgba(255, 140, 0, 0.6)");
+				grad.addColorStop(1.0, "rgba(255, 100, 0, 0.0)");
+				ctx.fillStyle = grad;
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, ring.r, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.restore();
+			});
+		}
+		get isFinished() { return this.rings.every(r => r.alpha <= 0); }
 	}
 
     class Particle {
@@ -1415,6 +1466,11 @@ ctx.restore();
         } else {
             almightyThreshold = CONFIG.THRESHOLD.ALMIGHTY_START;
         }
+        if (score >= CONFIG.THRESHOLD.SUNNY_START) {
+            sunnyThreshold = (Math.floor((score - CONFIG.THRESHOLD.SUNNY_START) / CONFIG.THRESHOLD.SUNNY_INTERVAL) + 1) * CONFIG.THRESHOLD.SUNNY_INTERVAL + CONFIG.THRESHOLD.SUNNY_START;
+        } else {
+            sunnyThreshold = CONFIG.THRESHOLD.SUNNY_START;
+        }
         draw();
     }
     
@@ -1496,6 +1552,7 @@ ctx.restore();
     }
 
     function showEndGameOverlay() {
+        gameElapsedTime = Date.now() - gameStartTime;
         document.getElementById('final-score').innerText = "SCORE: " + score;
         let ranking = loadRanking();
         
@@ -1553,6 +1610,14 @@ ctx.restore();
         updateBestScoreDisplay();
     }
 
+	function formatTime(ms) {
+        const totalSec = Math.floor(ms / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+	
     function initGame() {
         score = 0; moves = CONFIG.INITIAL_MOVES; 
         lightPanelThreshold = CONFIG.THRESHOLD.LIGHT_START; 
@@ -1560,6 +1625,7 @@ ctx.restore();
 		almightyThreshold = CONFIG.THRESHOLD.ALMIGHTY_START;
 		darkFastThreshold = CONFIG.THRESHOLD.DARK_FAST_START;
         isGameOver = false;
+        gameElapsedTime = 0;
         skillStock = 0; skillGauge = 0; particles = []; specialEffects = []; textEffects = []; dangerCounts = {};
 		
         collectedRainbowBalls.fill(false);
@@ -1636,8 +1702,7 @@ ctx.restore();
                             ctx.font = "13px sans-serif";
                             ctx.fillText("✦", x + g.ox, y + g.oy);
                         }
-                    });
-                    
+                    });                    
                     ctx.restore();
 				} else if (type === CONFIG.PANEL_TYPE.DARK) {
                     ctx.save();
@@ -1719,16 +1784,42 @@ ctx.restore();
 					let s = CONFIG.CELL_SIZE / 55;
 					ctx.fillStyle = "#ffe600";
 					ctx.beginPath();
-ctx.moveTo(cx2 +  5*s, cy2 - 18*s);
-ctx.lineTo(cx2 - 15*s, cy2 +  3*s);
-ctx.lineTo(cx2 -  3*s, cy2 +  3*s);
-ctx.lineTo(cx2 -  5*s, cy2 + 18*s);
-ctx.lineTo(cx2 + 15*s, cy2 -  3*s);
-ctx.lineTo(cx2 +  3*s, cy2 -  3*s);
+					ctx.moveTo(cx2 +  5*s, cy2 - 18*s);
+					ctx.lineTo(cx2 - 15*s, cy2 +  3*s);
+					ctx.lineTo(cx2 -  3*s, cy2 +  3*s);
+					ctx.lineTo(cx2 -  5*s, cy2 + 18*s);
+					ctx.lineTo(cx2 + 15*s, cy2 -  3*s);
+					ctx.lineTo(cx2 +  3*s, cy2 -  3*s);
 					ctx.closePath();
 					ctx.fill();
 					ctx.restore();
 					
+				} else if (type === CONFIG.PANEL_TYPE.SUNNY) {
+					ctx.save();
+					// 明るい黄色〜オレンジのグラデーション背景
+					let glow = 8 + Math.sin(selectionPulse * 1.8) * 4;
+					ctx.shadowBlur = glow;
+					ctx.shadowColor = "#ffe600";
+					let sunGrad = ctx.createRadialGradient(
+						x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2, 0,
+						x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2, CONFIG.CELL_SIZE/2 - 4
+					);
+					sunGrad.addColorStop(0,   "#fff9c4");
+					sunGrad.addColorStop(0.5, "#ffe53b");
+					sunGrad.addColorStop(1.0, "#ff9300");
+					ctx.fillStyle = sunGrad;
+					ctx.beginPath();
+					ctx.arc(x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2, CONFIG.CELL_SIZE/2 - 4, 0, Math.PI*2);
+					ctx.fill();
+					ctx.strokeStyle = "white"; ctx.lineWidth = 1.5; ctx.stroke();
+					// ☀ 記号を中央に描画
+					ctx.shadowBlur = 0;
+					ctx.fillStyle = "#ff6b00";
+					ctx.font = "bold 26px sans-serif";
+					ctx.textAlign = "center"; ctx.textBaseline = "middle";
+					ctx.fillText("☀", x + CONFIG.CELL_SIZE/2, y + CONFIG.CELL_SIZE/2 + 1);
+					ctx.restore();
+
                 } else {
                     ctx.fillStyle = (type === CONFIG.PANEL_TYPE.OBSTACLE) ? CONFIG.THEME_COLORS.OBSTACLE : CONFIG.COLORS[type];
                     roundRect(x + 3, y + 3, CONFIG.CELL_SIZE - 6, CONFIG.CELL_SIZE - 6, 12); ctx.fill();
@@ -1772,14 +1863,23 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 			ctx.restore();
 		}
 		
-		// フラッシュ中のセルを黄色く上書き
+		// 晴玉発動時のオレンジオーバーレイ
+		if (sunnyOverlayAlpha > 0) {
+			ctx.save();
+			ctx.globalAlpha = sunnyOverlayAlpha;
+			ctx.fillStyle = '#ffaa00';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.restore();
+		}
+		
+		// フラッシュ中のセルを色で上書き
 		flashingCells.forEach(key => {
 			const [fr, fc] = key.split(',').map(Number);
 			ctx.save();
 			ctx.globalAlpha = flashAlpha;
 			ctx.shadowBlur = 18;
-			ctx.shadowColor = '#ffe600';
-			ctx.fillStyle = '#ffe600';
+			ctx.shadowColor = flashColor;
+			ctx.fillStyle = flashColor;
 			roundRect(fc * CONFIG.CELL_SIZE + 3, fr * CONFIG.CELL_SIZE + 3, CONFIG.CELL_SIZE - 6, CONFIG.CELL_SIZE - 6, 12);
 			ctx.fill();
 			ctx.restore();
@@ -1804,7 +1904,12 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
             if (textEffects[i].life <= 0) textEffects.splice(i, 1);
             else textEffects[i].draw();
         }
-    }
+		if (gameStartTime && !isGameOver) {
+			document.getElementById('debug-time').textContent = `TIME: ${formatTime(Date.now() - gameStartTime)}`;
+		} else if (isGameOver) {
+			document.getElementById('debug-time').textContent = `TIME: ${formatTime(gameElapsedTime)}`;
+		}
+	}
 
     setInterval(() => {
         if (!isGameOver) {
@@ -1834,7 +1939,8 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
                 if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {
 				if ((board[r][c] >= CONFIG.PANEL_TYPE.OBSTACLE && board[r][c] !== CONFIG.PANEL_TYPE.ALMIGHTY) || (board[selected.r][selected.c] >= CONFIG.PANEL_TYPE.OBSTACLE && board[selected.r][selected.c] !== CONFIG.PANEL_TYPE.ALMIGHTY)) selected = {r, c};
                     else {
-                        isAnimating = true;
+                        if (!gameStartTime) gameStartTime = Date.now();
+						isAnimating = true;
                         const temp = board[r][c]; board[r][c] = board[selected.r][selected.c]; board[selected.r][selected.c] = temp;
 						lastMovedCell = [{r: selected.r, c: selected.c}, {r, c}];
                         selected = null;
@@ -2013,12 +2119,23 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
         });
     }
 
-	function useSkill() {
+	async function useSkill() {
 		let type = board[selected.r][selected.c];
-		if (type === CONFIG.PANEL_TYPE.OBSTACLE || type === CONFIG.PANEL_TYPE.DARK || type === CONFIG.PANEL_TYPE.ALLCLEAR) {
+		if (type === CONFIG.PANEL_TYPE.OBSTACLE || type === CONFIG.PANEL_TYPE.DARK || type === CONFIG.PANEL_TYPE.ALLCLEAR || type === CONFIG.PANEL_TYPE.SUNNY) {
 			
 			if (type === CONFIG.PANEL_TYPE.ALLCLEAR) {
 				triggerAllClear(selected.c, selected.r);
+			} else if (type === CONFIG.PANEL_TYPE.SUNNY) {
+				const sc = selected.c;  // 先に保存
+				const sr = selected.r;  // 先に保存
+				board[selected.r][selected.c] = -1;
+				skillStock--;
+				selected = null;
+				cleanUpDangerCountsData();
+				updateSkillUI();
+				await triggerSunny(sc, sr);  // 保存した値を使う
+				processRefillOnly();
+				return;
 			} else {
 				spawnRainbowParticles(selected.c, selected.r);
 			}
@@ -2051,7 +2168,7 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 			fill.style.clipPath = `inset(0px ${remainPercent}% 0px 0px)`;
 		}
         
-		const isTargetSelected = selected && (board[selected.r][selected.c] === CONFIG.PANEL_TYPE.OBSTACLE || board[selected.r][selected.c] === CONFIG.PANEL_TYPE.DARK || board[selected.r][selected.c] === CONFIG.PANEL_TYPE.ALLCLEAR);
+		const isTargetSelected = selected && (board[selected.r][selected.c] === CONFIG.PANEL_TYPE.OBSTACLE || board[selected.r][selected.c] === CONFIG.PANEL_TYPE.DARK || board[selected.r][selected.c] === CONFIG.PANEL_TYPE.ALLCLEAR || board[selected.r][selected.c] === CONFIG.PANEL_TYPE.SUNNY);
         const btn = document.getElementById('skill-btn');
         if (skillStock > 0 && isTargetSelected) { btn.disabled = false; btn.classList.add('rainbow-active'); }
         else { btn.disabled = true; btn.classList.remove('rainbow-active'); }
@@ -2194,7 +2311,7 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
         
         for (let r = 0; r < CONFIG.BOARD_SIZE; r++) {
             for (let c = 0; c < CONFIG.BOARD_SIZE; c++) {
-					if (board[r][c] === CONFIG.PANEL_TYPE.RAINBOW || board[r][c] === CONFIG.PANEL_TYPE.DARK || (board[r][c] >= CONFIG.PANEL_TYPE.BALL_MIN && board[r][c] <= CONFIG.PANEL_TYPE.BALL_MAX) || board[r][c] === CONFIG.PANEL_TYPE.ALLCLEAR) {
+					if (board[r][c] === CONFIG.PANEL_TYPE.RAINBOW || board[r][c] === CONFIG.PANEL_TYPE.DARK || (board[r][c] >= CONFIG.PANEL_TYPE.BALL_MIN && board[r][c] <= CONFIG.PANEL_TYPE.BALL_MAX) || board[r][c] === CONFIG.PANEL_TYPE.ALLCLEAR || board[r][c] === CONFIG.PANEL_TYPE.SUNNY) {
                     if (matchSet.has(`${r-1},${c}`) || matchSet.has(`${r+1},${c}`) || 
                         matchSet.has(`${r},${c-1}`) || matchSet.has(`${r},${c+1}`)) {
                         specialsToClear.push({r, c, type: board[r][c]});
@@ -2315,6 +2432,11 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 					board[s.r][s.c] = -1;
 					await triggerAllClear(s.c, s.r);
 					continue;
+				} else if (board[s.r][s.c] === CONFIG.PANEL_TYPE.SUNNY) {
+					board[s.r][s.c] = -1;
+					triggerSunny(s.c, s.r);
+					await new Promise(res => setTimeout(res, 300));
+					continue;
 				}
 				board[s.r][s.c] = -1;
 			}
@@ -2374,6 +2496,10 @@ if (type === CONFIG.PANEL_TYPE.OBSTACLE) {
 		if (score >= CONFIG.THRESHOLD.DARK_FAST_START && score >= darkFastThreshold) {
 			addSingleSpecialPanel(CONFIG.PANEL_TYPE.DARK, CONFIG.DARK_PANEL_FAST_COUNT);
 			darkFastThreshold += CONFIG.THRESHOLD.DARK_FAST_INTERVAL;
+		}
+		if (score >= CONFIG.THRESHOLD.SUNNY_START && score >= sunnyThreshold) {
+			addSingleSpecialPanel(CONFIG.PANEL_TYPE.SUNNY);
+			sunnyThreshold += CONFIG.THRESHOLD.SUNNY_INTERVAL;
 		}
     }
 
@@ -2449,6 +2575,8 @@ setTimeout(() => {
 					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.ALMIGHTY));
 				} else if (type === CONFIG.PANEL_TYPE.ALLCLEAR) {
 					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.RAINBOW));
+				} else if (type === CONFIG.PANEL_TYPE.SUNNY) {
+					specialEffects.push(new SpecialSpawnEffect(targetX, targetY, CONFIG.PANEL_TYPE.RAINBOW));
 				}
 				break;
 			}
@@ -2498,8 +2626,58 @@ setTimeout(() => {
 		}
 	}
 	
+	async function triggerSunny(col, row) {
+		const R = CONFIG.SUNNY_RADIUS;
+		let targets = [];
+		for (let dr = -R; dr <= R; dr++) {
+			for (let dc = -R; dc <= R; dc++) {
+				if (Math.abs(dr) + Math.abs(dc) > R) continue;
+				const tr = row + dr;
+				const tc = col + dc;
+				if (tr < 0 || tr >= CONFIG.BOARD_SIZE || tc < 0 || tc >= CONFIG.BOARD_SIZE) continue;
+				const t = board[tr][tc];
+				if (t === CONFIG.PANEL_TYPE.OBSTACLE || (CONFIG.SUNNY_CONVERT_NORMAL && t >= 0 && t < CONFIG.PANEL_TYPE.OBSTACLE)) {
+					targets.push({tr, tc});
+				}
+			}
+		}
+
+		// 中心にぽわんエフェクト
+		const cx = col * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
+		const cy = row * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
+		specialEffects.push(new SunnyEffect(cx, cy));
+
+		// 1. 範囲をオレンジ色にフラッシュ表示 ＋ 背景オレンジ色へ
+		targets.forEach(({tr, tc}) => flashingCells.add(`${tr},${tc}`));
+		flashAlpha = 0.7;
+		flashColor = '#ff8c00';
+		sunnyOverlayAlpha = 0.35;
+		draw();
+		await new Promise(res => setTimeout(res, 400));
+
+		// 2. 赤に変換
+		flashingCells = new Set();
+		targets.forEach(({tr, tc}) => {
+			board[tr][tc] = 0;
+			const px = tc * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
+			const py = tr * CONFIG.CELL_SIZE + CONFIG.CELL_SIZE / 2;
+			for (let i = 0; i < CONFIG.PARTICLE_COUNT_NORMAL; i++) {
+				particles.push(new Particle(px, py, CONFIG.COLORS[0], "star"));
+			}
+		});
+		cleanUpDangerCountsData();
+
+		// 3. 背景フェードアウト
+		for (let a = 0.35; a > 0; a -= 0.05) {
+			sunnyOverlayAlpha = a;
+			draw();
+			await new Promise(res => setTimeout(res, 30));
+		}
+		sunnyOverlayAlpha = 0;
+		draw();
+	}
+
 	async function triggerAllClear(col, row) {
-		isAnimating = true;
 
 		// 1. 暗転
 		darkOverlayAlpha = 0.6;
@@ -2528,6 +2706,7 @@ setTimeout(() => {
 			}
 		}
 		flashAlpha = 0.9;
+		flashColor = '#ffe600';
 		draw();
 		await new Promise(res => setTimeout(res, 200));
 
