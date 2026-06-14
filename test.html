@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3つ並べパズル - Rainbow Panels (ver4.6.0)</title>
+<title>3つ並べパズル - Rainbow Panels (ver5.0.0)</title>
 <style>
 body {
     background-color: #CAF5FF;
@@ -736,11 +736,11 @@ canvas {
         <button onclick="applyDebugScore()" style="padding: 4px 8px; font-size: 12px; cursor: pointer; border-radius: 4px; border: none; background: #34495e; color: white;">反映</button>
       </div>
       <div class="debug-btns">
-		<button onclick="setDebugScore(CONFIG.THRESHOLD.LIGHT_START - 200)">虹玉直前</button>
-		<button onclick="setDebugScore(CONFIG.THRESHOLD.DARK_START - 200)">闇玉直前</button>
-		<button onclick="setDebugScore(CONFIG.THRESHOLD.ALMIGHTY_START - 200)">プリズム直前</button>
-		<button onclick="addSingleSpecialPanel(CONFIG.PANEL_TYPE.SUNNY)" style="color:#ff9300;">晴玉</button>
-		<button onclick="addSingleSpecialPanel(CONFIG.PANEL_TYPE.RAINY)" style="color:#74b9ff;">雨玉</button>
+        <button onclick="setDebugScore(CONFIG.THRESHOLD.LIGHT_START - 200)">虹玉直前</button>
+        <button onclick="setDebugScore(CONFIG.THRESHOLD.DARK_START - 200)">闇玉直前</button>
+        <button onclick="setDebugScore(CONFIG.THRESHOLD.ALMIGHTY_START - 200)">プリズム直前</button>
+        <button onclick="addSingleSpecialPanel(CONFIG.PANEL_TYPE.SUNNY)" style="color:#ff9300;">晴玉</button>
+        <button onclick="addSingleSpecialPanel(CONFIG.PANEL_TYPE.RAINY)" style="color:#74b9ff;">雨玉</button>
       </div>
     </div>
     <div class="debug-row"> <span>LEVEL:</span>
@@ -984,7 +984,7 @@ const CONFIG = {
 		RAINY_EFFECT_DURATION:  700,  // 薄青エフェクトの表示時間（ms）
 		RAINY_DROP_COUNT:        30,  // 雨粒の生成数
 		RAINY_FRAME_DURATION:   90,  // 雨アニメの表示時間（フレーム数）
-		RAINY_LINE_WIDTH:         2,  // 雨粒の太さ
+		RAINY_LINE_WIDTH:         1.5,  // 雨粒の太さ
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // 🌈 SEVEN COLORS設定
@@ -1185,12 +1185,12 @@ const CONFIG = {
         let s = this.size / 38;
         ctx.fillStyle = "#ffe600";
         ctx.beginPath();
-ctx.moveTo(  5*s, -18*s);
-ctx.lineTo(-15*s,   3*s);
-ctx.lineTo( -3*s,   3*s);
-ctx.lineTo( -5*s,  18*s);
-ctx.lineTo( 15*s,  -3*s);
-ctx.lineTo(  3*s,  -3*s);
+		ctx.moveTo(  5*s, -18*s);
+		ctx.lineTo(-15*s,   3*s);
+		ctx.lineTo( -3*s,   3*s);
+		ctx.lineTo( -5*s,  18*s);
+		ctx.lineTo( 15*s,  -3*s);
+		ctx.lineTo(  3*s,  -3*s);
         ctx.closePath();
         ctx.fill();
         ctx.restore();
@@ -1296,32 +1296,56 @@ ctx.lineTo(  3*s,  -3*s);
 					x: Math.random() * canvasWidth,
 					y: Math.random() * canvasHeight - canvasHeight * 0.5,
 					speed: 4 + Math.random() * 4,
-					len: 8 + Math.random() * 10,
+					len: 8 + Math.random() * 36,
 					alpha: 0.6 + Math.random() * 0.4,
 				});
 			}
 			this.age = 0;
 		}
-		update() {
-			this.age++;
-			this.drops.forEach(d => {
-				d.y += d.speed;
-				if (d.y > this.height + 20) d.y = -20;
-			});
-		}
+update() {
+    this.age++;
+    this.drops.forEach(d => {
+        d.y += d.speed;
+        d.x -= d.speed * 0.05;  // 雨 左に微小移動（線の傾きと合わせる）
+        if (d.y > this.height + 20) {
+            d.y = -20;
+            d.x = Math.random() * this.width;  // x位置もリセット
+        }
+    });
+}
 		draw() {
 			this.drops.forEach(d => {
-				if (this.age > this.duration) return;
-				ctx.save();
-				ctx.globalAlpha = d.alpha * Math.max(0, 1 - this.age / this.duration);
-				ctx.strokeStyle = '#74b9ff';
-				ctx.lineWidth = CONFIG.RAINY_LINE_WIDTH;
+			    if (this.age > this.duration) return;
+			    ctx.save();
+			    ctx.globalAlpha = d.alpha * Math.max(0, 1 - this.age / this.duration);
+			    // 雨の線
+			    ctx.strokeStyle = '#74b9ff';
+			    ctx.lineWidth = CONFIG.RAINY_LINE_WIDTH;
 				ctx.beginPath();
 				ctx.moveTo(d.x, d.y);
 				ctx.lineTo(d.x - 2, d.y + d.len);
 				ctx.stroke();
-				ctx.restore();
-			});
+				// 先端の水滴（線との間に隙間を作る）
+				ctx.fillStyle = '#a4d4ff';
+				const dropX = d.x - 2;
+				const dropY = d.y + d.len + 9;  // 雨の線と雨粒に隙間を作る
+				const dropSize = 4;
+				ctx.beginPath();
+				ctx.moveTo(dropX, dropY - dropSize * 1.6);  // 雫の先端（上）
+				ctx.bezierCurveTo(
+					dropX + dropSize * 1.1, dropY - dropSize * 0.2,
+					dropX + dropSize, dropY + dropSize * 0.9,
+					dropX, dropY + dropSize
+				);
+				ctx.bezierCurveTo(
+					dropX - dropSize, dropY + dropSize * 0.9,
+					dropX - dropSize * 1.1, dropY - dropSize * 0.2,
+					dropX, dropY - dropSize * 1.6
+				);
+				ctx.closePath();
+				ctx.fill();
+			    ctx.restore();
+		});
 		}
 		get isFinished() { return this.age > this.duration; }
 	}
@@ -1364,17 +1388,17 @@ ctx.lineTo(  3*s,  -3*s);
                 roundRect(this.x + this.offsetX + 3, this.y + 3, CONFIG.CELL_SIZE - 6, CONFIG.CELL_SIZE - 6, 12); ctx.fill();
                 ctx.fillStyle = "rgba(255,255,255,0.7)"; ctx.font = "bold 26px sans-serif";
                 ctx.textAlign = "center"; ctx.textBaseline = "middle"; 
-// お邪魔パネルの中の模様を雲に変更
-const cx = this.x + this.offsetX + CONFIG.CELL_SIZE / 2;
-const cy = this.y + CONFIG.CELL_SIZE / 2;
-const s = CONFIG.CELL_SIZE / 100;
-ctx.save();
-ctx.translate(cx - 42.5 * s, cy - 42.5 * s);
-ctx.scale(s, s);
-ctx.fillStyle = "#ffffff";
-const cloudPath = new Path2D("M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z");
-ctx.fill(cloudPath);
-ctx.restore();
+				// お邪魔パネルの中の模様を雲に変更
+				const cx = this.x + this.offsetX + CONFIG.CELL_SIZE / 2;
+				const cy = this.y + CONFIG.CELL_SIZE / 2;
+				const s = CONFIG.CELL_SIZE / 100;
+				ctx.save();
+				ctx.translate(cx - 42.5 * s, cy - 42.5 * s);
+				ctx.scale(s, s);
+				ctx.fillStyle = "#ffffff";
+				const cloudPath = new Path2D("M14.3,36.5c-15.3,3.3-13,23.4,4.5,21.3,3.6,7.2,16.5,9.1,23,4.1,6.9,6.9,20.5,4.5,24.3-2.9,18.7-.2,22.9-26-.6-30.5-4.5-13.8-26.8-16.1-33.5-3-8.7-3.1-17.5,3.4-17.7,11.1Z");
+				ctx.fill(cloudPath);
+				ctx.restore();
             } else {
                 ctx.fillStyle = this.color;
                 ctx.font = `bold ${this.size}px sans-serif`; ctx.textAlign = "center";
@@ -2743,7 +2767,6 @@ setTimeout(() => {
 		let targets = [];
 		for (let dr = -R; dr <= R; dr++) {
 			for (let dc = -R; dc <= R; dc++) {
-				if (Math.abs(dr) + Math.abs(dc) > R) continue;
 				const tr = row + dr;
 				const tc = col + dc;
 				if (tr < 0 || tr >= CONFIG.BOARD_SIZE || tc < 0 || tc >= CONFIG.BOARD_SIZE) continue;
